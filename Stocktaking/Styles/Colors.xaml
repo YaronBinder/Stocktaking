@@ -1,0 +1,28 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Color x:Key="FrostedWhite">#EFEFFF</Color>
+    <SolidColorBrush x:Key="FrostedWhiteBrush" Color="{StaticResource FrostedWhite}"/>
+
+    <Color x:Key="DeepGrey">#202025</Color>
+    <SolidColorBrush x:Key="DeepGreyBrush" Color="{StaticResource DeepGrey}"/>
+
+    <Color x:Key="VeryLightGrey">#CFCFDA</Color>
+    <SolidColorBrush x:Key="VeryLightGreyBrush" Color="{StaticResource VeryLightGrey}"/>
+
+    <Color x:Key="LightGrey">#BFBFCA</Color>
+    <SolidColorBrush x:Key="LightGreyBrush" Color="{StaticResource LightGrey}"/>
+
+    <Color x:Key="Grey">#505050</Color>
+    <SolidColorBrush x:Key="GreyBrush" Color="{StaticResource Grey}"/>
+
+    <Color x:Key="DarkGrey">#303030</Color>
+    <SolidColorBrush x:Key="DarkGreyBrush" Color="{StaticResource DarkGrey}"/>
+
+    <Color x:Key="ShowMode">#1560DF</Color>
+    <SolidColorBrush x:Key="ShowModeBrush" Color="{StaticResource ShowMode}"/>
+
+    <Color x:Key="StocktakingMode">Tomato</Color>
+    <SolidColorBrush x:Key="StocktakingModeBrush" Color="{StaticResource StocktakingMode}"/>
+
+</ResourceDictionary>
