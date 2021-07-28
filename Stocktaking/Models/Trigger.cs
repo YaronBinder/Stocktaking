@@ -2,19 +2,44 @@
 using System.Net;
 using System.Text;
 using CommonWindows;
+using System.Windows;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
-using System.Windows;
 
 namespace Stocktaking.Models
 {
     public class Trigger
     {
+        #region Private static variables
+
+        // Camera server port
+        private readonly static int port = 2120;
+
+        // Time out for the send data from the camera request
         private readonly static int sendTimeOut = 5000;
+
+        // Time out for the recive data from the camera request
         private readonly static int reciveTimeOut = 5000;
+
+        // Time out for the attempt to connect to the camera
         private readonly static int connectTimeOut = 500;
 
-        public static string PerformTrigger(string address, int port, string request, Action close)
+        // Camera server IP address
+        private readonly static string address = "192.168.0.1";
+
+        // Trigger word for the camera to perform counting of the batteries
+        private readonly static string request = "\x02trigger\x03";
+
+        #endregion
+
+        #region Static methods
+
+        /// <summary>
+        /// Execute The TCP Trigger request from the server
+        /// </summary>
+        /// <param name="close">Main window close action</param>
+        /// <returns>The number of batteries in the tray</returns>
+        public static string PerformTrigger(Action close)
         {
             try
             {
@@ -31,11 +56,12 @@ namespace Stocktaking.Models
                     ReceiveTimeout = reciveTimeOut
                 };
 
+                // Perform connection to the given socket in order to find if there is a connection
                 TryConnection(socket, iPAddress, port);
 
                 // Connect to client
                 socket.Connect(localEndPoint);
-                
+
                 // Encoding the massage from string to byte array
                 byte[] data = Encoding.ASCII.GetBytes(request);
 
@@ -50,7 +76,7 @@ namespace Stocktaking.Models
 
                 // Saving the massage from the client as an integer
                 string countedTray = Trim(Encoding.ASCII.GetString(data));
-                                
+
                 // Closing the socket
                 socket.Shutdown(SocketShutdown.Both);
                 socket.Close();
@@ -86,15 +112,17 @@ namespace Stocktaking.Models
             else
             {
                 socket.Close();
-                throw new ApplicationException("לא צלח חיבור למצלמה, התוכנה תיסגר");
+                throw new ApplicationException("החיבור למצלמה לא צלח - התוכנית תיסגר");
             }
         }
 
         /// <summary>
-        /// Trim "junk" characters from the specified string
+        /// Trim Unicode characters from the specified string
         /// </summary>
         /// <param name="text"></param>
-        /// <returns>Trimed text</returns>
+        /// <returns>Clean and trimed text</returns>
         private static string Trim(string text) => Regex.Replace(text, @"[^\t\r\n -~]", string.Empty);
+
+        #endregion
     }
 }

@@ -19,8 +19,8 @@
     <Color x:Key="DarkGrey">#303030</Color>
     <SolidColorBrush x:Key="DarkGreyBrush" Color="{StaticResource DarkGrey}"/>
 
-    <Color x:Key="ShowMode">#1560DF</Color>
-    <SolidColorBrush x:Key="ShowModeBrush" Color="{StaticResource ShowMode}"/>
+    <Color x:Key="ShowModeColor">#1560DF</Color>
+    <SolidColorBrush x:Key="ShowModeBrush" Color="{StaticResource ShowModeColor}"/>
 
     <Color x:Key="StocktakingMode">Tomato</Color>
     <SolidColorBrush x:Key="StocktakingModeBrush" Color="{StaticResource StocktakingMode}"/>

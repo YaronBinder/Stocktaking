@@ -1,0 +1,133 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
+    <Style TargetType="{x:Type TextBlock}" x:Key="LargeHeader">
+        <Setter Property="FontSize" Value="36"/>
+        <Setter Property="FontFamily" Value="Verdana"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding ElementName=Light, Path=IsChecked}" Value="False">
+                <Setter Property="Foreground" Value="{Binding ElementName=Light, Path=OffColor}"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style TargetType="{x:Type TextBox}" x:Key="LargeText">
+        <Setter Property="FontSize" Value="36"/>
+        <Setter Property="FontFamily" Value="Verdana"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <Style TargetType="{x:Type Border}" x:Key="DynamicBackground">
+        <Setter Property="Background" Value="{StaticResource FrostedWhiteBrush}"/>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding ElementName=Light, Path=IsChecked}" Value="False">
+                <Setter Property="Background" Value="{StaticResource DeepGreyBrush}"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <!--Closing and minimizing buttons-->
+    <Style x:Key="SemiTransparentButtons" TargetType="{x:Type Button}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Border Background="{TemplateBinding Background}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <EventTrigger RoutedEvent="MouseEnter">
+                            <EventTrigger.Actions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <ColorAnimation 
+                                            Duration="0:0:0.1"
+                                            From="#00000000"
+                                            To="#60000000"
+                                            Storyboard.TargetProperty="Background.Color"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger.Actions>
+                        </EventTrigger>
+                        <EventTrigger RoutedEvent="MouseLeave">
+                            <EventTrigger.Actions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <ColorAnimation 
+                                            Duration="0:0:0.1"
+                                            From="#60000000"
+                                            To="#00000000"
+                                            Storyboard.TargetProperty="Background.Color"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger.Actions>
+                        </EventTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+        
+    <Style TargetType="{x:Type Rectangle}" x:Key="RectangleFillColorAnimarion">
+        <Setter Property="Fill" Value="{StaticResource StocktakingModeBrush}"/>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding Path=DataContext.ShowMode, RelativeSource={RelativeSource AncestorType=Grid, Mode=FindAncestor}}" Value="True">
+                <DataTrigger.EnterActions>
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <ColorAnimation
+                                Duration="0:0:0.25"
+                                From="{StaticResource StocktakingMode}"
+                                To="{StaticResource ShowModeColor}"
+                                Storyboard.TargetProperty="Fill.Color"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </DataTrigger.EnterActions>
+                <DataTrigger.ExitActions>
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <ColorAnimation
+                                Duration="0:0:0.25"
+                                From="{StaticResource ShowModeColor}"
+                                To="{StaticResource StocktakingMode}"
+                                Storyboard.TargetProperty="Fill.Color"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </DataTrigger.ExitActions>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style TargetType="{x:Type Rectangle}" x:Key="RectangleStyle">
+        <Setter Property="Fill" Value="{StaticResource StocktakingModeBrush}"/>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding ElementName=Mode, Path=IsChecked}" Value="False">
+                <DataTrigger.EnterActions>
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <ColorAnimation
+                                Duration="0:0:0.25"
+                                From="{StaticResource ShowModeColor}"
+                                To="{StaticResource StocktakingMode}"
+                                Storyboard.TargetProperty="Fill.Color"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </DataTrigger.EnterActions>
+                <DataTrigger.ExitActions>
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <ColorAnimation
+                                Duration="0:0:0.25"
+                                From="{StaticResource StocktakingMode}"
+                                To="{StaticResource ShowModeColor}"
+                                Storyboard.TargetProperty="Fill.Color"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </DataTrigger.ExitActions>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+</ResourceDictionary>
