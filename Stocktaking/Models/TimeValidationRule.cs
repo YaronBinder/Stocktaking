@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows.Controls;
 
 namespace Stocktaking.Models
@@ -35,6 +31,6 @@ namespace Stocktaking.Models
         }
 
         private bool TimePatternValidation(TimeSpan time)
-            => new Regex(@"^(([0-1][0-9])|([2][0-3]))(:([0-5][0-9])){0,2}$").IsMatch(time.ToString());
+            => new Regex(@"^(([0-1][0-9])|([2][0-3]))(:([0-5][0-9])){1,2}$").IsMatch(time.ToString());
     }
 }

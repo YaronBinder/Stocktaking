@@ -6,17 +6,17 @@
         xmlns:local="clr-namespace:Stocktaking.Views"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:viewmodel="clr-namespace:Stocktaking.ViewModel;assembly=Stocktaking" 
-        xmlns:ExceptionValidationRule="clr-namespace:Stocktaking.Models;assembly=Stocktaking"
+        xmlns:ExceptionValidationRule="clr-namespace:Stocktaking.Models"
         d:DataContext="{d:DesignInstance Type=viewmodel:ReportWindowVM}"
         mc:Ignorable="d" Height="Auto" Width="Auto" WindowStartupLocation="CenterScreen"
         Title="ReportWindow" FlowDirection="RightToLeft" SnapsToDevicePixels="True"
         AllowsTransparency="True" Background="Transparent" MinWidth="1200"
         WindowStyle="None" SizeToContent="WidthAndHeight">
-    
+
     <Window.Resources>
         <ControlTemplate x:Key="validationTemplate">
             <StackPanel>
-                <TextBlock Text="!" FontSize="34" Foreground="Red"/>
+                <TextBlock Text="!" FontSize="32" Foreground="Red"/>
                 <AdornedElementPlaceholder/>
             </StackPanel>
         </ControlTemplate>
@@ -136,7 +136,7 @@
     </Window.Resources>
 
     <Border
-        CornerRadius="10"
+        CornerRadius="25"
         Height="725">
         <Border.Style>
             <Style TargetType="{x:Type Border}">
@@ -151,7 +151,7 @@
 
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="0.3*"/>
+                <RowDefinition Height="0.33*"/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
@@ -204,7 +204,7 @@
                         <ColumnDefinition/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
-                    
+
                     <Rectangle
                         Grid.Row="0"
                         Grid.Column="0"
@@ -212,7 +212,7 @@
                         Style="{DynamicResource RectangleFillColorAnimarion}"
                         DataContext="{Binding ShowMode, UpdateSourceTrigger=PropertyChanged}"
                         PreviewMouseLeftButtonDown="Rectangle_MouseLeftButtonDown"/>
-                    
+
                     <!--Close, Minimize buttons-->
                     <StackPanel 
                         Orientation="Horizontal"
@@ -276,6 +276,7 @@
                         <StackPanel Style="{StaticResource MargedStackPanel}">
                             <TextBlock Text="מתאריך"/>
                             <xctk:MaskedTextBox 
+                                Padding="10 0"
                                 MaxLength="8" 
                                 Style="{StaticResource BeautyTextbox}"
                                 Validation.ErrorTemplate="{StaticResource validationTemplate}"
@@ -288,8 +289,7 @@
                                         ValidatesOnDataErrors="True"
                                         NotifyOnValidationError="True">
                                         <Binding.ValidationRules>
-                                            <ExceptionValidationRule:DateValidationRule
-                                                ValidatesOnTargetUpdated="True"/>
+                                            <ExceptionValidationRule:DateValidationRule ValidatesOnTargetUpdated="True"/>
                                         </Binding.ValidationRules>
                                     </Binding>
                                 </xctk:MaskedTextBox.Text>
@@ -299,6 +299,7 @@
                         <StackPanel Style="{StaticResource MargedStackPanel}">
                             <TextBlock Text="לתאריך"/>
                             <xctk:MaskedTextBox 
+                                Padding="10 0"
                                 MaxLength="8"
                                 Style="{StaticResource BeautyTextbox}"
                                 Validation.ErrorTemplate="{StaticResource validationTemplate}"
@@ -311,8 +312,7 @@
                                         ValidatesOnDataErrors="True"
                                         NotifyOnValidationError="True">
                                         <Binding.ValidationRules>
-                                            <ExceptionValidationRule:DateValidationRule
-                                                ValidatesOnTargetUpdated="True"/>
+                                            <ExceptionValidationRule:DateValidationRule ValidatesOnTargetUpdated="True"/>
                                         </Binding.ValidationRules>
                                     </Binding>
                                 </xctk:MaskedTextBox.Text>
@@ -326,6 +326,7 @@
                                 Text="{Binding ExecutionTime, UpdateSourceTrigger=PropertyChanged}" 
                                 Style="{StaticResource BeautyTextbox}"/>-->
                             <xctk:MaskedTextBox 
+                                Padding="10 0"
                                 MaxLength="8"
                                 Style="{StaticResource BeautyTextbox}"
                                 Validation.ErrorTemplate="{StaticResource validationTemplate}"
@@ -338,8 +339,7 @@
                                         ValidatesOnDataErrors="True"
                                         NotifyOnValidationError="True">
                                         <Binding.ValidationRules>
-                                            <ExceptionValidationRule:TimeValidationRule
-                                                ValidatesOnTargetUpdated="True"/>
+                                            <ExceptionValidationRule:TimeValidationRule ValidatesOnTargetUpdated="True"/>
                                         </Binding.ValidationRules>
                                     </Binding>
                                 </xctk:MaskedTextBox.Text>
@@ -348,31 +348,34 @@
                     </StackPanel>
                 </Grid>
             </Border>
-            <DataGrid
+            <StackPanel
                 Grid.Row="1"
                 Grid.Column="0"
                 Grid.ColumnSpan="3">
-                <DataGrid.RowStyle>
-                    <Style TargetType="{x:Type DataGridRow}">
-                        <Setter Property="Background" Value="AliceBlue"/>
-                    </Style>
-                </DataGrid.RowStyle>
-                <DataGrid.CellStyle>
-                    <Style TargetType="{x:Type DataGridCell}">
-                        <Setter Property="Background" Value="AliceBlue"/>
-                    </Style>
-                </DataGrid.CellStyle>
-                <DataGrid.Style>
-                    <Style TargetType="{x:Type DataGrid}">
-                        <Setter Property="Background" Value="{StaticResource DeepGreyBrush}"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding Path=LightCheckState}" Value="True">
-                                <Setter Property="Background" Value="{StaticResource FrostedWhiteBrush}"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </DataGrid.Style>
-            </DataGrid>
+                
+                <DataGrid>
+                    <DataGrid.RowStyle>
+                        <Style TargetType="{x:Type DataGridRow}">
+                            <Setter Property="Background" Value="AliceBlue"/>
+                        </Style>
+                    </DataGrid.RowStyle>
+                    <DataGrid.CellStyle>
+                        <Style TargetType="{x:Type DataGridCell}">
+                            <Setter Property="Background" Value="AliceBlue"/>
+                        </Style>
+                    </DataGrid.CellStyle>
+                    <DataGrid.Style>
+                        <Style TargetType="{x:Type DataGrid}">
+                            <Setter Property="Background" Value="{StaticResource DeepGreyBrush}"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Path=LightCheckState}" Value="True">
+                                    <Setter Property="Background" Value="{StaticResource FrostedWhiteBrush}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.Style>
+                </DataGrid>
+            </StackPanel>
         </Grid>
     </Border>
 </Window>
