@@ -3,41 +3,64 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Stocktaking"
-        x:Name="StocktakingApp"
-        WindowStartupLocation="CenterScreen"
+        x:Name="StocktakingApp" WindowStartupLocation="CenterScreen"
         ResizeMode="CanMinimize" SnapsToDevicePixels="True"
         xmlns:Toggle="clr-namespace:CommonWindows.ToggleSwitch;assembly=CommonWindows"
-        xmlns:viewmodel="clr-namespace:Stocktaking.ViewModel;assembly=Stocktaking" 
+        xmlns:viewmodel="clr-namespace:Stocktaking.ViewModel;assembly=Stocktaking" xmlns:models="clr-namespace:Stocktaking.Models"
         d:DataContext="{d:DesignInstance Type=viewmodel:StocktakingVM}"
-        mc:Ignorable="d" FlowDirection="RightToLeft"
+        mc:Ignorable="d" FlowDirection="RightToLeft" 
         AllowsTransparency="True" Background="Transparent"
         WindowStyle="None" SizeToContent="WidthAndHeight"
         Title="Stocktaking" Height="Auto" Width="Auto">
+    <Window.Resources>
+        <!--Opening sliding window-->
+        <Storyboard x:Key="OpenMenu">
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Visibility">
+                <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="{x:Static Visibility.Visible}"/>
+            </ObjectAnimationUsingKeyFrames>
+            <DoubleAnimation 
+                Storyboard.TargetProperty="Width" 
+                From="0" 
+                To="250" 
+                DecelerationRatio="1" 
+                Duration="0:0:0.5"/>
+            <DoubleAnimation
+                Storyboard.TargetProperty="Opacity"
+                From="0"
+                To="1"
+                DecelerationRatio="1"
+                Duration="0:0:0.5"/>
+        </Storyboard>
+
+        <!--Closing sliding window-->
+        <Storyboard x:Key="CloseMenu">
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Visibility">
+                <DiscreteObjectKeyFrame KeyTime="0:0:1" Value="{x:Static Visibility.Collapsed}"/>
+            </ObjectAnimationUsingKeyFrames>
+            <DoubleAnimation 
+                Storyboard.TargetProperty="Width" 
+                From="250" 
+                To="0" 
+                DecelerationRatio="0.9"
+                Duration="0:0:0.5"/>
+            <DoubleAnimation
+                Storyboard.TargetProperty="Opacity"
+                From="1"
+                To="0"
+                DecelerationRatio="0.9"
+                Duration="0:0:0.5"/>
+        </Storyboard>
+
+        <models:BoolToVisibilityConverter x:Key="ReversedBoolToVisibility"/>
+    </Window.Resources>
 
     <Border
         CornerRadius="25"
-        Height="750"
-        VerticalAlignment="Bottom"
         Style="{DynamicResource DynamicBackground}">
-
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="0.3*"/>
-                <RowDefinition/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="0.33*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+        <StackPanel>
 
             <!--Upper window - Mode selector-->
-            <Border
-                Grid.Row="0"
-                Grid.Column="0"
-                Grid.ColumnSpan="3"
-                BorderThickness="0 0 0 1">
-
+            <Border BorderThickness="0 0 0 1">
                 <Border.Style>
                     <Style TargetType="Border">
                         <Setter Property="BorderBrush">
@@ -67,7 +90,7 @@
                     </Style>
                 </Border.Style>
 
-                <Grid>
+                <Grid Height="180">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="0.3*"/>
                         <RowDefinition/>
@@ -85,23 +108,35 @@
                         Style="{StaticResource RectangleStyle}"
                         PreviewMouseLeftButtonDown="Rectangle_MouseDown"/>
 
+                    <!--Version-->
+                    <TextBlock 
+                        FontSize="16"
+                        Grid.Column="3" 
+                        Padding="0 0 10 0" 
+                        Text="{Binding Title}" 
+                        HorizontalAlignment="Right" 
+                        Style="{StaticResource LargeHeader}"/>
+
                     <!--Top panel and switch mode-->
-                    <StackPanel Orientation="Horizontal">
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3">
+
 
                         <!--Close button-->
                         <Button
-                            Command="{Binding CloseButton}"
-                            Background="#00000000"
                             Width="70"
                             Cursor="Hand"
+                            ToolTip="סגירה"
+                            Background="#00000000"
+                            Command="{Binding CloseButton}"
                             Style="{StaticResource SemiTransparentButtons}">
                             <Button.Content>
                                 <TextBlock
-                                    Text="X"
-                                    FontFamily="Gill Sans MT"
+                                    Text="✕"
                                     FontSize="22"
+                                    FontWeight="ExtraBold"
                                     Foreground="#303030"
                                     TextAlignment="Center"
+                                    FontFamily="Gill Sans MT"
                                     VerticalAlignment="Center"
                                     HorizontalAlignment="Center"
                                     Style="{StaticResource LargeHeader}" />
@@ -110,17 +145,20 @@
 
                         <!--Minimize button-->
                         <Button
-                            Command="{Binding MinimizeButton}"
-                            Background="#00000000"
                             Width="70"
                             Cursor="Hand"
+                            ToolTip="מזעור"
+                            Background="#00000000"
+                            Command="{Binding MinimizeButton}"
                             Style="{StaticResource SemiTransparentButtons}">
                             <Button.Content>
                                 <TextBlock
                                     Text="─"
                                     FontSize="22"
+                                    Margin="0 0 0 -10"
                                     Foreground="#303030"
                                     TextAlignment="Center"
+                                    FontWeight="ExtraBold"
                                     VerticalAlignment="Center"
                                     HorizontalAlignment="Center"
                                     Style="{StaticResource LargeHeader}" />
@@ -133,7 +171,8 @@
                         Grid.Column="0"
                         Grid.Row="2"
                         FontWeight="UltraBlack"
-                        Text="מצב ספירת מלאי">
+                        Text="מצב ספירת מלאי"
+                        ToolTip="מציג ושומר במסד הנתונים את מספר התאים במגש">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock" BasedOn="{StaticResource LargeHeader}">
                                 <Style.Triggers>
@@ -176,7 +215,8 @@
                         Grid.Column="2"
                         Grid.Row="2"
                         FontWeight="UltraBlack"
-                        Text="מצב תצוגה">
+                        Text="מצב תצוגה"
+                        ToolTip="מציג את מספר התאים במגש ללא שמירה במסד הנתונים">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock" BasedOn="{StaticResource LargeHeader}">
                                 <Style.Triggers>
@@ -192,28 +232,50 @@
                     </TextBlock>
                 </Grid>
             </Border>
-            
+
             <!--Lower portion of the window-->
-            <Grid
-                Margin="20"
-                Grid.Row="1"
-                Grid.Column="0"
-                Grid.ColumnSpan="2">
-                <Grid.ColumnDefinitions>
+            <DockPanel Margin="15">
+                <!--<Grid.ColumnDefinitions>
                     <ColumnDefinition Width="0.33*"/>
                     <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
+                </Grid.ColumnDefinitions>-->
                 <!--Right window panel - Light and Barcode-->
                 <StackPanel
-                    Margin="20"
-                    Grid.Row="0"
-                    Grid.Column="0"
+                    Margin="15"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center">
 
+                    <StackPanel 
+                        Margin="0 0 0 15"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="{Binding Path=IsChecked, ElementName=Mode, Converter={StaticResource ReversedBoolToVisibility}}" >
+                        <TextBlock 
+                            Text="מספר עגלה נוכחי" 
+                            TextDecorations="Underline"
+                            Style="{StaticResource LargeHeader}"/>
+                        <TextBlock 
+                            Text="{Binding CartBarcodeNumber, UpdateSourceTrigger=PropertyChanged, NotifyOnTargetUpdated=True}" 
+                            Style="{StaticResource LargeHeader}">
+                            <TextBlock.Triggers>
+                                <EventTrigger RoutedEvent="Binding.TargetUpdated">
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation 
+                                                Duration="0:0:0.25"
+                                                From="1"
+                                                To="0"
+                                                AutoReverse="True"
+                                                Storyboard.TargetProperty="Opacity"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </TextBlock.Triggers>
+                        </TextBlock>
+                    </StackPanel>
+
                     <!--Light mode title text-->
-                    <TextBlock Text="תאורה" FontSize="24" Style="{StaticResource LargeHeader}"/>
+                    <TextBlock Text="מצב כהה" FontSize="24" Style="{StaticResource LargeHeader}"/>
 
                     <!--Light mode switch-->
                     <Toggle:ToggleSwitch
@@ -244,17 +306,31 @@
                         VerticalAlignment="Center">
 
                         <!--Barcode title text-->
-                        <TextBlock Text="ברקוד מגש/עגלה" Padding="10" Style="{StaticResource LargeHeader}"/>
+                        <TextBlock Padding="10">
+                            <TextBlock.Style>
+                                <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource LargeHeader}">
+                                    <Setter Property="Text" Value="ברקוד עגלה/מגש"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Path=IsChecked, ElementName=Mode}" Value="True">
+                                            <Setter Property="Text" Value="ברקוד מגש"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
 
                         <!--Barcode textbox-->
                         <TextBox
-                        Padding="10"
-                        MaxLines="1"
-                        MinWidth="200"
-                        ForceCursor="True"
-                        TextWrapping="Wrap"
-                        TextAlignment="Center"
-                        Text="{Binding Barcode, UpdateSourceTrigger=PropertyChanged}">
+                            Padding="10"
+                            MaxLines="1"
+                            MinWidth="200"
+                            ForceCursor="True"
+                            TextWrapping="Wrap"
+                            TextAlignment="Center"
+                            Text="{Binding Barcode, UpdateSourceTrigger=PropertyChanged}">
+                            <TextBox.InputBindings>
+                                <KeyBinding Command="{Binding EnterBarcode}" Key="Return"/>
+                            </TextBox.InputBindings>
                             <TextBox.Style>
                                 <Style TargetType="{x:Type TextBox}" BasedOn="{StaticResource LargeText}">
                                     <Setter Property="Background" Value="{Binding ElementName=Light, Path=OffColor}"/>
@@ -271,16 +347,16 @@
                                         <Setter.Value>
                                             <ControlTemplate TargetType="{x:Type TextBox}">
                                                 <Border
-                                                BorderBrush="{TemplateBinding BorderBrush}"
-                                                BorderThickness="{TemplateBinding BorderThickness}"
-                                                Background="{TemplateBinding Background}"
-                                                CornerRadius="5"
-                                                SnapsToDevicePixels="True">
+                                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                                    Background="{TemplateBinding Background}"
+                                                    CornerRadius="5"
+                                                    SnapsToDevicePixels="True">
                                                     <ScrollViewer 
-                                                    x:Name="PART_ContentHost" 
-                                                    Focusable="false"
-                                                    HorizontalScrollBarVisibility="Hidden" 
-                                                    VerticalScrollBarVisibility="Hidden"/>
+                                                        x:Name="PART_ContentHost" 
+                                                        Focusable="false"
+                                                        HorizontalScrollBarVisibility="Hidden" 
+                                                        VerticalScrollBarVisibility="Hidden"/>
                                                 </Border>
                                                 <ControlTemplate.Triggers>
                                                     <Trigger Property="IsFocused" Value="True">
@@ -297,13 +373,13 @@
                                                             <BeginStoryboard>
                                                                 <Storyboard>
                                                                     <DoubleAnimation
-                                                                    To="1"
-                                                                    Storyboard.TargetProperty="(Effect).Opacity"
-                                                                    Duration="0:0:0.2"/>
+                                                                        To="1"
+                                                                        Storyboard.TargetProperty="(Effect).Opacity"
+                                                                        Duration="0:0:0.2"/>
                                                                     <ThicknessAnimation
-                                                                    To="2"
-                                                                    Storyboard.TargetProperty="BorderThickness"
-                                                                    Duration="0:0:0.1"/>
+                                                                        To="2"
+                                                                        Storyboard.TargetProperty="BorderThickness"
+                                                                        Duration="0:0:0.1"/>
                                                                 </Storyboard>
                                                             </BeginStoryboard>
                                                         </Trigger.EnterActions>
@@ -311,13 +387,13 @@
                                                             <BeginStoryboard>
                                                                 <Storyboard>
                                                                     <DoubleAnimation 
-                                                                    To="0"
-                                                                    Storyboard.TargetProperty="(Effect).Opacity"
-                                                                    Duration="0:0:0.2"/>
+                                                                        To="0"
+                                                                        Storyboard.TargetProperty="(Effect).Opacity"
+                                                                        Duration="0:0:0.2"/>
                                                                     <ThicknessAnimation
-                                                                    To="1"
-                                                                    Storyboard.TargetProperty="BorderThickness"
-                                                                    Duration="0:0:0.1"/>
+                                                                        To="1"
+                                                                        Storyboard.TargetProperty="BorderThickness"
+                                                                        Duration="0:0:0.1"/>
                                                                 </Storyboard>
                                                             </BeginStoryboard>
                                                         </Trigger.ExitActions>
@@ -333,10 +409,10 @@
                                             <Setter Property="Effect">
                                                 <Setter.Value>
                                                     <DropShadowEffect
-                                                    BlurRadius="5"
-                                                    ShadowDepth="0"
-                                                    Opacity="0"
-                                                    Color="{StaticResource FrostedWhite}"/>
+                                                        BlurRadius="5"
+                                                        ShadowDepth="0"
+                                                        Opacity="0"
+                                                        Color="{StaticResource FrostedWhite}"/>
                                                 </Setter.Value>
                                             </Setter>
                                         </DataTrigger>
@@ -421,84 +497,195 @@
                     </Button>
                 </StackPanel>
 
-                <!--Left window panel - Battery counter-->
-                <StackPanel
-                    Grid.Row="0"
-                    Grid.Column="1">
+                <StackPanel Orientation="Horizontal">
+                    <!--Left window panel - Battery counter-->
+                    <StackPanel>
 
-                    <!--Battery counter title text-->
-                    <TextBlock Text="מספר תאים במגש" Style="{StaticResource LargeHeader}"/>
-
-                    <!--Battery counter text border-->
-                    <Border
-                        Margin="20"
-                        BorderThickness="5"
-                        CornerRadius="10">
-                        <Border.Style>
-                            <Style TargetType="Border">
-                                <Setter Property="Background">
-                                    <Setter.Value>
-                                        <LinearGradientBrush StartPoint="0 0" EndPoint="0 1">
-                                            <GradientStop Color="{Binding ElementName=Light, Path=OffColor}" Offset="0"/>
-                                            <GradientStop Color="{StaticResource VeryLightGrey}" Offset="1"/>
-                                        </LinearGradientBrush>
-                                    </Setter.Value>
-                                </Setter>
-                                <Setter Property="BorderBrush">
-                                    <Setter.Value>
-                                        <LinearGradientBrush StartPoint="0 0" EndPoint="0 1">
-                                            <GradientStop Color="{StaticResource LightGrey}" Offset="0"/>
-                                            <GradientStop Color="{StaticResource DeepGrey}" Offset="1"/>
-                                        </LinearGradientBrush>
-                                    </Setter.Value>
-                                </Setter>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding ElementName=Light, Path=IsChecked}" Value="False">
-                                        <Setter Property="Background">
-                                            <Setter.Value>
-                                                <LinearGradientBrush StartPoint="0 0" EndPoint="0 1">
-                                                    <GradientStop Color="{StaticResource Grey}" Offset="0"/>
-                                                    <GradientStop Color="{StaticResource DarkGrey}" Offset="1"/>
-                                                </LinearGradientBrush>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Border.Style>
-
-                        <!--Battery counter text-->
+                        <!--Battery counter title text-->
                         <TextBlock
-                            FontSize="380"
-                            Text="{Binding BatteryNumber, NotifyOnTargetUpdated=True}"
-                            TextAlignment="Center" Width="862">
-                            <TextBlock.Triggers>
-                                <EventTrigger RoutedEvent="Binding.TargetUpdated">
-                                    <BeginStoryboard>
-                                        <Storyboard>
-                                            <DoubleAnimation 
-                                                Duration="0:0:0.15"
-                                                To="1"
-                                                From="0"
-                                                Storyboard.TargetProperty="Opacity"/>
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </EventTrigger>
-                            </TextBlock.Triggers>
-                            <TextBlock.Style>
-                                <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource LargeHeader}">
+                            Text="מספר תאים במגש"
+                            Style="{StaticResource LargeHeader}"/>
+
+                        <!--Battery counter text border-->
+                        <Border
+                            Margin="15"
+                            Width="650"
+                            BorderThickness="5"
+                            CornerRadius="10">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Background">
+                                        <Setter.Value>
+                                            <LinearGradientBrush StartPoint="0 0" EndPoint="0 1">
+                                                <GradientStop Color="{Binding ElementName=Light, Path=OffColor}" Offset="0"/>
+                                                <GradientStop Color="{StaticResource VeryLightGrey}" Offset="1"/>
+                                            </LinearGradientBrush>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Setter Property="BorderBrush">
+                                        <Setter.Value>
+                                            <LinearGradientBrush StartPoint="0 0" EndPoint="0 1">
+                                                <GradientStop Color="{StaticResource LightGrey}" Offset="0"/>
+                                                <GradientStop Color="{StaticResource DeepGrey}" Offset="1"/>
+                                            </LinearGradientBrush>
+                                        </Setter.Value>
+                                    </Setter>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding ElementName=Light, Path=IsChecked}" Value="False">
-                                            <Setter Property="Foreground" Value="{Binding ElementName=Light, Path=OffColor}"/>
+                                            <Setter Property="Background">
+                                                <Setter.Value>
+                                                    <LinearGradientBrush StartPoint="0 0" EndPoint="0 1">
+                                                        <GradientStop Color="{StaticResource Grey}" Offset="0"/>
+                                                        <GradientStop Color="{StaticResource DarkGrey}" Offset="1"/>
+                                                    </LinearGradientBrush>
+                                                </Setter.Value>
+                                            </Setter>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
-                    </Border>
-                </StackPanel>
+                            </Border.Style>
 
-            </Grid>
-        </Grid>
+                            <StackPanel Margin="15">
+
+                                <!--Battery counter text-->
+                                <TextBlock
+                                    FontSize="100"
+                                    TextAlignment="Center" 
+                                    VerticalAlignment="Top"
+                                    HorizontalAlignment="Center"
+                                    Text="{Binding CellCount ,NotifyOnTargetUpdated=True, UpdateSourceTrigger=PropertyChanged}">
+                                    <TextBlock.Triggers>
+                                        <EventTrigger RoutedEvent="Binding.TargetUpdated">
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation 
+                                                        To="1"
+                                                        From="0"
+                                                        Duration="0:0:0.25"
+                                                        Storyboard.TargetProperty="Opacity"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </EventTrigger>
+                                    </TextBlock.Triggers>
+                                    <TextBlock.Style>
+                                        <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource LargeHeader}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding ElementName=Light, Path=IsChecked}" Value="False">
+                                                    <Setter Property="Foreground" Value="{Binding ElementName=Light, Path=OffColor}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+
+                                <!--`SICK` tray captured image-->
+                                <Image 
+                                    Width="600"
+                                    Height="450"
+                                    RenderTransformOrigin="0.5, 0.5"
+                                    Source="{Binding TrayImage, UpdateSourceTrigger=PropertyChanged, NotifyOnSourceUpdated=True, NotifyOnTargetUpdated=True}">
+                                    <Image.Triggers>
+                                        <EventTrigger RoutedEvent="Binding.TargetUpdated">
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation 
+                                                        To="1"
+                                                        From="0"
+                                                        Duration="0:0:0.25"
+                                                        Storyboard.TargetProperty="Opacity"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </EventTrigger>
+                                    </Image.Triggers>
+                                    <Image.RenderTransform>
+                                        <ScaleTransform ScaleX="-1" ScaleY="-1"/>
+                                    </Image.RenderTransform>
+                                </Image>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!--History Button-->
+                    <StackPanel Visibility="{Binding Path=IsChecked, ElementName=Mode, Converter={StaticResource ReversedBoolToVisibility}}">
+                        <StackPanel.LayoutTransform>
+                            <RotateTransform Angle="-90"/>
+                        </StackPanel.LayoutTransform>
+                        <Button x:Name="HistoryBtn" HorizontalAlignment="Center" Margin="50,0,0,0">
+                            <Button.Style>
+                                <Style TargetType="{x:Type Button}">
+                                    <Setter Property="Background" Value="{StaticResource FrostedWhiteBrush}"/>
+                                    <Setter Property="Foreground" Value="{StaticResource DeepGreyBrush}"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="{x:Type Button}">
+                                                <Border
+                                                    TextBlock.Foreground="{TemplateBinding Foreground}"
+                                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                                    CornerRadius="5">
+                                                    <Grid>
+                                                        <TextBlock Text="היסטוריה" Style="{StaticResource LargeHeader}"/>
+                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Grid>
+                                                    <Border.Style>
+                                                        <Style TargetType="{x:Type Border}">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding ElementName=Light, Path=IsChecked}" Value="false">
+                                                                    <Setter Property="Background" Value="{StaticResource DeepGreyBrush}"/>
+                                                                    <Setter Property="TextBlock.Foreground" Value="{StaticResource FrostedWhiteBrush}"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="BorderBrush">
+                                                            <Setter.Value>
+                                                                <LinearGradientBrush StartPoint="0 0" EndPoint="1 1">
+                                                                    <GradientStop Color="#FEAC5E" Offset="0"/>
+                                                                    <GradientStop Color="#C779D0" Offset="0.5"/>
+                                                                    <GradientStop Color="#4BC0C8" Offset="1"/>
+                                                                </LinearGradientBrush>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                        <Trigger.EnterActions>
+                                                            <BeginStoryboard>
+                                                                <Storyboard>
+                                                                    <ThicknessAnimation
+                                                                        To="3"
+                                                                        Storyboard.TargetProperty="BorderThickness"
+                                                                        Duration="0:0:0.15"/>
+                                                                </Storyboard>
+                                                            </BeginStoryboard>
+                                                        </Trigger.EnterActions>
+                                                        <Trigger.ExitActions>
+                                                            <BeginStoryboard>
+                                                                <Storyboard>
+                                                                    <ThicknessAnimation
+                                                                        To="1"
+                                                                        Storyboard.TargetProperty="BorderThickness"
+                                                                        Duration="0:0:0.15"/>
+                                                                </Storyboard>
+                                                            </BeginStoryboard>
+                                                        </Trigger.ExitActions>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </StackPanel>
+
+                    <DockPanel Visibility="{Binding Path=IsChecked, ElementName=Mode, Converter={StaticResource ReversedBoolToVisibility}}">
+                        <ScrollViewer Opacity="0" Name="LeftMenu" Visibility="Collapsed" FlowDirection="RightToLeft">
+                        <StackPanel x:Name="HistoryPanel" Margin="10 0 0 0" Background="#50FFFFFF"/>
+                    </ScrollViewer>
+                    </DockPanel>
+                </StackPanel>
+            </DockPanel>
+        </StackPanel>
     </Border>
 </Window>

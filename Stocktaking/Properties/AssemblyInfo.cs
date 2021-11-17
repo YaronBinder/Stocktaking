@@ -10,9 +10,9 @@ using System.Windows;
 [assembly: AssemblyTitle("Stocktaking")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Tadiran Batteries")]
 [assembly: AssemblyProduct("Stocktaking")]
-[assembly: AssemblyCopyright("Copyright ©  2021")]
+[assembly: AssemblyCopyright("YaronBinder©  2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

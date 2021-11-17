@@ -5,18 +5,18 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Stocktaking.Views"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
-        xmlns:viewmodel="clr-namespace:Stocktaking.ViewModel;assembly=Stocktaking" 
-        xmlns:ExceptionValidationRule="clr-namespace:Stocktaking.Models"
+        xmlns:viewmodel="clr-namespace:Stocktaking.ViewModel;assembly=Stocktaking"
+        xmlns:models="clr-namespace:Stocktaking.Models"
         d:DataContext="{d:DesignInstance Type=viewmodel:ReportWindowVM}"
-        mc:Ignorable="d" Height="Auto" Width="Auto" WindowStartupLocation="CenterScreen"
+        mc:Ignorable="d" Height="725" Width="1200" WindowStartupLocation="CenterScreen"
         Title="ReportWindow" FlowDirection="RightToLeft" SnapsToDevicePixels="True"
-        AllowsTransparency="True" Background="Transparent" MinWidth="1200"
-        WindowStyle="None" SizeToContent="WidthAndHeight">
+        AllowsTransparency="True" Background="Transparent"
+        WindowStyle="None" ResizeMode="CanMinimize">
 
     <Window.Resources>
         <ControlTemplate x:Key="validationTemplate">
             <StackPanel>
-                <TextBlock Text="!" FontSize="32" Foreground="Red"/>
+                <TextBlock Text="[!]" FontSize="26" Foreground="#FF2632"/>
                 <AdornedElementPlaceholder/>
             </StackPanel>
         </ControlTemplate>
@@ -29,7 +29,7 @@
             <Setter Property="Foreground" Value="{StaticResource FrostedWhiteBrush}"/>
             <Setter Property="Padding" Value="10"/>
             <Style.Triggers>
-                <DataTrigger Binding="{Binding LightCheckState}" Value="True">
+                <DataTrigger Binding="{Binding LightCheckState, UpdateSourceTrigger=PropertyChanged}" Value="True">
                     <Setter Property="Foreground" Value="{StaticResource DeepGreyBrush}"/>
                 </DataTrigger>
             </Style.Triggers>
@@ -45,13 +45,14 @@
             <Setter Property="MinWidth" Value="100"/>
             <Setter Property="MaxLines" Value="1"/>
             <Setter Property="Margin" Value="5 0"/>
+            <Setter Property="ToolTip" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=(Validation.Errors)[0].ErrorContent}"/>
             <Setter Property="Effect">
                 <Setter.Value>
                     <DropShadowEffect
-                    BlurRadius="5"
-                    ShadowDepth="0"
-                    Opacity="0"
-                    Color="{StaticResource ShowModeColor}"/>
+                        BlurRadius="5"
+                        ShadowDepth="0"
+                        Opacity="0"
+                        Color="{StaticResource ShowModeColor}"/>
                 </Setter.Value>
             </Setter>
             <Setter Property="Template">
@@ -64,10 +65,10 @@
                             CornerRadius="5"
                             SnapsToDevicePixels="True">
                             <ScrollViewer 
-                                    x:Name="PART_ContentHost" 
-                                    Focusable="false"
-                                    HorizontalScrollBarVisibility="Hidden" 
-                                    VerticalScrollBarVisibility="Hidden"/>
+                                x:Name="PART_ContentHost" 
+                                Focusable="false"
+                                HorizontalScrollBarVisibility="Hidden" 
+                                VerticalScrollBarVisibility="Hidden"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsFocused" Value="True">
@@ -84,13 +85,13 @@
                                     <BeginStoryboard>
                                         <Storyboard>
                                             <DoubleAnimation
-                                            To="1"
-                                            Storyboard.TargetProperty="(Effect).Opacity"
-                                            Duration="0:0:0.2"/>
+                                                To="1"
+                                                Storyboard.TargetProperty="(Effect).Opacity"
+                                                Duration="0:0:0.2"/>
                                             <ThicknessAnimation
-                                            To="2"
-                                            Storyboard.TargetProperty="BorderThickness"
-                                            Duration="0:0:0.1"/>
+                                                To="2"
+                                                Storyboard.TargetProperty="BorderThickness"
+                                                Duration="0:0:0.15"/>
                                         </Storyboard>
                                     </BeginStoryboard>
                                 </Trigger.EnterActions>
@@ -98,13 +99,13 @@
                                     <BeginStoryboard>
                                         <Storyboard>
                                             <DoubleAnimation 
-                                            To="0"
-                                            Storyboard.TargetProperty="(Effect).Opacity"
-                                            Duration="0:0:0.2"/>
+                                                To="0"
+                                                Storyboard.TargetProperty="(Effect).Opacity"
+                                                Duration="0:0:0.2"/>
                                             <ThicknessAnimation
-                                            To="1"
-                                            Storyboard.TargetProperty="BorderThickness"
-                                            Duration="0:0:0.1"/>
+                                                To="1"
+                                                Storyboard.TargetProperty="BorderThickness"
+                                                Duration="0:0:0.15"/>
                                         </Storyboard>
                                     </BeginStoryboard>
                                 </Trigger.ExitActions>
@@ -114,20 +115,16 @@
                 </Setter.Value>
             </Setter>
             <Style.Triggers>
-                <Trigger Property="Validation.HasError" Value="true">
-                    <Setter Property="ToolTip" Value="{Binding RelativeSource={x:Static RelativeSource.Self},
-                        Path=(Validation.Errors)[0].ErrorContent}"/>
-                </Trigger>
                 <DataTrigger Binding="{Binding LightCheckState}" Value="False">
                     <Setter Property="Background" Value="{StaticResource DeepGreyBrush}"/>
                     <Setter Property="Foreground" Value="{StaticResource FrostedWhiteBrush}"/>
                     <Setter Property="Effect">
                         <Setter.Value>
                             <DropShadowEffect
-                            BlurRadius="5"
-                            ShadowDepth="0"
-                            Opacity="0"
-                            Color="{StaticResource FrostedWhite}"/>
+                                BlurRadius="5"
+                                ShadowDepth="0"
+                                Opacity="0"
+                                Color="{StaticResource FrostedWhite}"/>
                         </Setter.Value>
                     </Setter>
                 </DataTrigger>
@@ -135,14 +132,12 @@
         </Style>
     </Window.Resources>
 
-    <Border
-        CornerRadius="25"
-        Height="725">
+    <Border CornerRadius="25">
         <Border.Style>
             <Style TargetType="{x:Type Border}">
                 <Setter Property="Background" Value="{StaticResource FrostedWhiteBrush}"/>
                 <Style.Triggers>
-                    <DataTrigger Binding="{Binding LightCheckState}" Value="False">
+                    <DataTrigger Binding="{Binding LightCheckState, UpdateSourceTrigger=PropertyChanged}" Value="False">
                         <Setter Property="Background" Value="{StaticResource DeepGreyBrush}"/>
                     </DataTrigger>
                 </Style.Triggers>
@@ -200,7 +195,7 @@
                         <RowDefinition/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
+                        <ColumnDefinition Width="0.28*"/>
                         <ColumnDefinition/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
@@ -213,6 +208,14 @@
                         DataContext="{Binding ShowMode, UpdateSourceTrigger=PropertyChanged}"
                         PreviewMouseLeftButtonDown="Rectangle_MouseLeftButtonDown"/>
 
+                    <!--Version-->
+                    <TextBlock 
+                        FontSize="16"
+                        Grid.Column="3" 
+                        Padding="0 0 10 0" 
+                        Text="{Binding Title}" 
+                        HorizontalAlignment="Right"/>
+
                     <!--Close, Minimize buttons-->
                     <StackPanel 
                         Orientation="Horizontal"
@@ -221,18 +224,20 @@
 
                         <!--Close button-->
                         <Button
-                            Command="{Binding CloseButton}"
-                            Background="#00000000"
                             Width="70"
                             Cursor="Hand"
+                            ToolTip="סגירה"
+                            Background="#00000000"
+                            Command="{Binding CloseButton}"
                             Style="{StaticResource SemiTransparentButtons}">
                             <Button.Content>
                                 <TextBlock
-                                    Text="X"
-                                    FontFamily="Gill Sans MT"
+                                    Text="✕"
                                     FontSize="22"
                                     Foreground="#303030"
                                     TextAlignment="Center"
+                                    FontWeight="ExtraBold"
+                                    FontFamily="Gill Sans MT"
                                     VerticalAlignment="Center"
                                     HorizontalAlignment="Center"
                                     Style="{StaticResource LargeHeader}" />
@@ -241,17 +246,20 @@
 
                         <!--Minimize button-->
                         <Button
-                            Command="{Binding MinimizeButton}"
-                            Background="#00000000"
                             Width="70"
                             Cursor="Hand"
+                            ToolTip="מזעור "
+                            Background="#00000000"
+                            Command="{Binding MinimizeButton}"
                             Style="{StaticResource SemiTransparentButtons}">
                             <Button.Content>
                                 <TextBlock
                                     Text="─"
                                     FontSize="22"
+                                    Margin="0 0 0 -10"
                                     Foreground="#303030"
                                     TextAlignment="Center"
+                                    FontWeight="ExtraBold"
                                     VerticalAlignment="Center"
                                     HorizontalAlignment="Center"
                                     Style="{StaticResource LargeHeader}" />
@@ -261,121 +269,538 @@
 
                     <StackPanel
                         Grid.Row="1"
-                        Grid.Column="0"
-                        Grid.ColumnSpan="3"
-                        Orientation="Horizontal"
-                        HorizontalAlignment="Center">
-                        <StackPanel Style="{StaticResource MargedStackPanel}">
-                            <TextBlock Text="מספר עגלה"/>
-                            <TextBox Text="{Binding CartNumber, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource BeautyTextbox}"/>
-                        </StackPanel>
-                        <StackPanel Style="{StaticResource MargedStackPanel}">
-                            <TextBlock Text="מספר מגש"/>
-                            <TextBox Text="{Binding TrayNumber, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource BeautyTextbox}"/>
-                        </StackPanel>
-                        <StackPanel Style="{StaticResource MargedStackPanel}">
-                            <TextBlock Text="מתאריך"/>
-                            <xctk:MaskedTextBox 
-                                Padding="10 0"
-                                MaxLength="8" 
-                                Style="{StaticResource BeautyTextbox}"
-                                Validation.ErrorTemplate="{StaticResource validationTemplate}"
-                                Mask="00/00/0000">
-                                <xctk:MaskedTextBox.Text>
-                                    <Binding 
-                                        Path="DateFrom"
-                                        UpdateSourceTrigger="PropertyChanged"
-                                        ValidatesOnNotifyDataErrors="True"
-                                        ValidatesOnDataErrors="True"
-                                        NotifyOnValidationError="True">
-                                        <Binding.ValidationRules>
-                                            <ExceptionValidationRule:DateValidationRule ValidatesOnTargetUpdated="True"/>
-                                        </Binding.ValidationRules>
-                                    </Binding>
-                                </xctk:MaskedTextBox.Text>
-                            </xctk:MaskedTextBox>
-                            <!--<TextBox Text="{Binding DateFrom, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource BeautyTextbox}"/>-->
-                        </StackPanel>
-                        <StackPanel Style="{StaticResource MargedStackPanel}">
-                            <TextBlock Text="לתאריך"/>
-                            <xctk:MaskedTextBox 
-                                Padding="10 0"
-                                MaxLength="8"
-                                Style="{StaticResource BeautyTextbox}"
-                                Validation.ErrorTemplate="{StaticResource validationTemplate}"
-                                Mask="00/00/0000">
-                                <xctk:MaskedTextBox.Text>
-                                    <Binding 
-                                        Path="DateTo"
-                                        UpdateSourceTrigger="PropertyChanged"
-                                        ValidatesOnNotifyDataErrors="True"
-                                        ValidatesOnDataErrors="True"
-                                        NotifyOnValidationError="True">
-                                        <Binding.ValidationRules>
-                                            <ExceptionValidationRule:DateValidationRule ValidatesOnTargetUpdated="True"/>
-                                        </Binding.ValidationRules>
-                                    </Binding>
-                                </xctk:MaskedTextBox.Text>
-                            </xctk:MaskedTextBox>
-                            <!--<TextBox Text="{Binding DateTo, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource BeautyTextbox}"/>-->
-                        </StackPanel>
-                        <StackPanel Style="{StaticResource MargedStackPanel}">
-                            <TextBlock Text="זמן ביצוע"/>
-                            <!--<TextBox 
-                                MaxLength="8"
-                                Text="{Binding ExecutionTime, UpdateSourceTrigger=PropertyChanged}" 
-                                Style="{StaticResource BeautyTextbox}"/>-->
-                            <xctk:MaskedTextBox 
-                                Padding="10 0"
-                                MaxLength="8"
-                                Style="{StaticResource BeautyTextbox}"
-                                Validation.ErrorTemplate="{StaticResource validationTemplate}"
-                                Mask="00:00:00">
-                                <xctk:MaskedTextBox.Text>
-                                    <Binding 
-                                        Path="ExecutionTime"
-                                        UpdateSourceTrigger="PropertyChanged"
-                                        ValidatesOnNotifyDataErrors="True"
-                                        ValidatesOnDataErrors="True"
-                                        NotifyOnValidationError="True">
-                                        <Binding.ValidationRules>
-                                            <ExceptionValidationRule:TimeValidationRule ValidatesOnTargetUpdated="True"/>
-                                        </Binding.ValidationRules>
-                                    </Binding>
-                                </xctk:MaskedTextBox.Text>
-                            </xctk:MaskedTextBox>
-                        </StackPanel>
+                        Grid.Column="0">
+
+                        <!--Excel report button-->
+                        <Button
+                            Cursor="Hand"
+                            Background="Transparent"
+                            Command="{Binding ExcelReport}"
+                            ToolTip="צור דוח אקסל">
+                            <Button.Content>
+                                <Image Source="\\FILES\Departments\ProgDev\lastVersion\YaronProgramsDevelopment\Code\Stocktaking\Assets\Excel-logo.png"/>
+                            </Button.Content>
+                            <Button.Style>
+                                <Style TargetType="{x:Type Button}">
+                                    <Setter Property="Background" Value="{StaticResource FrostedWhiteBrush}"/>
+                                    <Setter Property="Foreground" Value="{StaticResource DeepGreyBrush}"/>
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="{x:Type Button}">
+                                                <Border
+                                                    TextBlock.Foreground="{TemplateBinding Foreground}"
+                                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                                    CornerRadius="0">
+                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    <Border.Style>
+                                                        <Style TargetType="{x:Type Border}">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding LightCheckState}" Value="false">
+                                                                    <Setter Property="Background" Value="{StaticResource DeepGreyBrush}"/>
+                                                                    <Setter Property="TextBlock.Foreground" Value="{StaticResource FrostedWhiteBrush}"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="BorderBrush">
+                                                            <Setter.Value>
+                                                                <LinearGradientBrush StartPoint="0 0" EndPoint="1 0">
+                                                                    <GradientStop Color="#FEAC5E" Offset="0"/>
+                                                                    <GradientStop Color="#C779D0" Offset="0.5"/>
+                                                                    <GradientStop Color="#4BC0C8" Offset="1"/>
+                                                                </LinearGradientBrush>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                        <Trigger.EnterActions>
+                                                            <BeginStoryboard>
+                                                                <Storyboard>
+                                                                    <ThicknessAnimation
+                                                                        To="10"
+                                                                        Storyboard.TargetProperty="BorderThickness"
+                                                                        Duration="0:0:0.15"/>
+                                                                </Storyboard>
+                                                            </BeginStoryboard>
+                                                        </Trigger.EnterActions>
+                                                        <Trigger.ExitActions>
+                                                            <BeginStoryboard>
+                                                                <Storyboard>
+                                                                    <ThicknessAnimation
+                                                                        To="0"
+                                                                        Storyboard.TargetProperty="BorderThickness"
+                                                                        Duration="0:0:0.15"/>
+                                                                </Storyboard>
+                                                            </BeginStoryboard>
+                                                        </Trigger.ExitActions>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                        </Button>
                     </StackPanel>
+
+                    <ScrollViewer
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        Grid.ColumnSpan="2"
+                        VerticalScrollBarVisibility="Hidden"
+                        HorizontalScrollBarVisibility="Auto">
+                        <StackPanel
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Center">
+                            <StackPanel 
+                                Width="80"
+                                VerticalAlignment="Center"
+                                Style="{StaticResource MargedStackPanel}">
+
+                                <!--Refresh button-->
+                                <Button
+                                    Cursor="Hand"
+                                    Background="Transparent"
+                                    Command="{Binding RefreshTable}"
+                                    ToolTip="רענן טבלה">
+                                    <Button.Content>
+                                        <Image Source="\\FILES\Departments\ProgDev\lastVersion\YaronProgramsDevelopment\Code\Stocktaking\Assets\Refresh.png"/>
+                                    </Button.Content>
+                                    <Button.Style>
+                                        <Style TargetType="{x:Type Button}">
+                                            <Setter Property="Background" Value="{StaticResource FrostedWhiteBrush}"/>
+                                            <Setter Property="Foreground" Value="{StaticResource DeepGreyBrush}"/>
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="{x:Type Button}">
+                                                        <Border
+                                                            TextBlock.Foreground="{TemplateBinding Foreground}"
+                                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                                            CornerRadius="0">
+                                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                            <Border.Style>
+                                                                <Style TargetType="{x:Type Border}">
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding LightCheckState}" Value="false">
+                                                                            <Setter Property="Background" Value="{StaticResource DeepGreyBrush}"/>
+                                                                            <Setter Property="TextBlock.Foreground" Value="{StaticResource FrostedWhiteBrush}"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Border.Style>
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="BorderBrush">
+                                                                    <Setter.Value>
+                                                                        <LinearGradientBrush StartPoint="0 0" EndPoint="1 0">
+                                                                            <GradientStop Color="#FEAC5E" Offset="0"/>
+                                                                            <GradientStop Color="#C779D0" Offset="0.5"/>
+                                                                            <GradientStop Color="#4BC0C8" Offset="1"/>
+                                                                        </LinearGradientBrush>
+                                                                    </Setter.Value>
+                                                                </Setter>
+                                                                <Trigger.EnterActions>
+                                                                    <BeginStoryboard>
+                                                                        <Storyboard>
+                                                                            <ThicknessAnimation
+                                                                                To="10"
+                                                                                Storyboard.TargetProperty="BorderThickness"
+                                                                                Duration="0:0:0.15"/>
+                                                                        </Storyboard>
+                                                                    </BeginStoryboard>
+                                                                </Trigger.EnterActions>
+                                                                <Trigger.ExitActions>
+                                                                    <BeginStoryboard>
+                                                                        <Storyboard>
+                                                                            <ThicknessAnimation
+                                                                                To="0"
+                                                                                Storyboard.TargetProperty="BorderThickness"
+                                                                                Duration="0:0:0.15"/>
+                                                                        </Storyboard>
+                                                                    </BeginStoryboard>
+                                                                </Trigger.ExitActions>
+                                                            </Trigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </StackPanel>
+                            <StackPanel 
+                                Width="80"
+                                VerticalAlignment="Center"
+                                Style="{StaticResource MargedStackPanel}">
+
+                                <!--Erase button-->
+                                <Button
+                                    Cursor="Hand"
+                                    Background="Transparent"
+                                    Command="{Binding DeleteRow}"
+                                    ToolTip="מחק רשומות נבחרות">
+                                    <Button.Content>
+                                        <Image Source="\\FILES\Departments\ProgDev\lastVersion\YaronProgramsDevelopment\Code\Stocktaking\Assets\Delete.png"/>
+                                    </Button.Content>
+                                    <Button.Style>
+                                        <Style TargetType="{x:Type Button}">
+                                            <Setter Property="Background" Value="{StaticResource FrostedWhiteBrush}"/>
+                                            <Setter Property="Foreground" Value="{StaticResource DeepGreyBrush}"/>
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="{x:Type Button}">
+                                                        <Border
+                                                            TextBlock.Foreground="{TemplateBinding Foreground}"
+                                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                                            CornerRadius="0">
+                                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                            <Border.Style>
+                                                                <Style TargetType="{x:Type Border}">
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding LightCheckState}" Value="false">
+                                                                            <Setter Property="Background" Value="{StaticResource DeepGreyBrush}"/>
+                                                                            <Setter Property="TextBlock.Foreground" Value="{StaticResource FrostedWhiteBrush}"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Border.Style>
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="BorderBrush">
+                                                                    <Setter.Value>
+                                                                        <LinearGradientBrush StartPoint="0 0" EndPoint="1 0">
+                                                                            <GradientStop Color="#FEAC5E" Offset="0"/>
+                                                                            <GradientStop Color="#C779D0" Offset="0.5"/>
+                                                                            <GradientStop Color="#4BC0C8" Offset="1"/>
+                                                                        </LinearGradientBrush>
+                                                                    </Setter.Value>
+                                                                </Setter>
+                                                                <Trigger.EnterActions>
+                                                                    <BeginStoryboard>
+                                                                        <Storyboard>
+                                                                            <ThicknessAnimation
+                                                                                To="10"
+                                                                                Storyboard.TargetProperty="BorderThickness"
+                                                                                Duration="0:0:0.15"/>
+                                                                        </Storyboard>
+                                                                    </BeginStoryboard>
+                                                                </Trigger.EnterActions>
+                                                                <Trigger.ExitActions>
+                                                                    <BeginStoryboard>
+                                                                        <Storyboard>
+                                                                            <ThicknessAnimation
+                                                                                To="0"
+                                                                                Storyboard.TargetProperty="BorderThickness"
+                                                                                Duration="0:0:0.15"/>
+                                                                        </Storyboard>
+                                                                    </BeginStoryboard>
+                                                                </Trigger.ExitActions>
+                                                            </Trigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource MargedStackPanel}">
+                                <TextBlock Text="סוג סוללה"/>
+                                <TextBox 
+                                    Text="{Binding CellType, UpdateSourceTrigger=PropertyChanged}" 
+                                    Style="{StaticResource BeautyTextbox}"/>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource MargedStackPanel}">
+                                <TextBlock Text="מספר עגלה"/>
+                                <TextBox 
+                                    Text="{Binding CartNumber, UpdateSourceTrigger=PropertyChanged}" 
+                                    Style="{StaticResource BeautyTextbox}"/>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource MargedStackPanel}">
+                                <TextBlock Text="מספר מגש"/>
+                                <TextBox 
+                                    Text="{Binding TrayNumber, UpdateSourceTrigger=PropertyChanged}" 
+                                    Style="{StaticResource BeautyTextbox}"/>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource MargedStackPanel}">
+                                <TextBlock Text="מתאריך"/>
+                                <xctk:MaskedTextBox 
+                                    Padding="10 0"
+                                    MaxLength="8" 
+                                    Style="{StaticResource BeautyTextbox}"
+                                    Validation.ErrorTemplate="{StaticResource validationTemplate}"
+                                    Mask="00/00/0000">
+                                    <xctk:MaskedTextBox.Text>
+                                        <Binding 
+                                            Path="DateFrom"
+                                            UpdateSourceTrigger="PropertyChanged"
+                                            ValidatesOnNotifyDataErrors="True"
+                                            ValidatesOnDataErrors="True"
+                                            NotifyOnValidationError="True">
+                                            <Binding.ValidationRules>
+                                                <models:DateValidationRule/>
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </xctk:MaskedTextBox.Text>
+                                </xctk:MaskedTextBox>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource MargedStackPanel}">
+                                <TextBlock Text="לתאריך"/>
+                                <xctk:MaskedTextBox 
+                                    Padding="10 0"
+                                    MaxLength="8"
+                                    Style="{StaticResource BeautyTextbox}"
+                                    Validation.ErrorTemplate="{StaticResource validationTemplate}"
+                                    Mask="00/00/0000">
+                                    <xctk:MaskedTextBox.Text>
+                                        <Binding 
+                                            Path="DateTo"
+                                            UpdateSourceTrigger="PropertyChanged"
+                                            ValidatesOnNotifyDataErrors="True"
+                                            ValidatesOnDataErrors="True"
+                                            NotifyOnValidationError="True">
+                                            <Binding.ValidationRules>
+                                                <models:DateValidationRule/>
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </xctk:MaskedTextBox.Text>
+                                </xctk:MaskedTextBox>
+                            </StackPanel>
+
+                            <StackPanel Style="{StaticResource MargedStackPanel}">
+                                <TextBlock Text="מזמן ביצוע"/>
+                                <xctk:MaskedTextBox 
+                                    Padding="10 0"
+                                    MaxLength="8"
+                                    Style="{StaticResource BeautyTextbox}"
+                                    Validation.ErrorTemplate="{StaticResource validationTemplate}"
+                                    Mask="00:00:00">
+                                    <xctk:MaskedTextBox.Text>
+                                        <Binding 
+                                            Path="ExecutionTimeFrom"
+                                            UpdateSourceTrigger="PropertyChanged"
+                                            ValidatesOnNotifyDataErrors="True"
+                                            ValidatesOnDataErrors="True"
+                                            NotifyOnValidationError="True">
+                                            <Binding.ValidationRules>
+                                                <models:TimeValidationRule/>
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </xctk:MaskedTextBox.Text>
+                                </xctk:MaskedTextBox>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource MargedStackPanel}">
+                                <TextBlock Text="לזמן ביצוע"/>
+                                <xctk:MaskedTextBox 
+                                    Padding="10 0"
+                                    MaxLength="8"
+                                    Style="{StaticResource BeautyTextbox}"
+                                    Validation.ErrorTemplate="{StaticResource validationTemplate}"
+                                    Mask="00:00:00">
+                                    <xctk:MaskedTextBox.Text>
+                                        <Binding 
+                                            Path="ExecutionTimeTo"
+                                            UpdateSourceTrigger="PropertyChanged"
+                                            ValidatesOnNotifyDataErrors="True"
+                                            ValidatesOnDataErrors="True"
+                                            NotifyOnValidationError="True">
+                                            <Binding.ValidationRules>
+                                                <models:TimeValidationRule/>
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </xctk:MaskedTextBox.Text>
+                                </xctk:MaskedTextBox>
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
                 </Grid>
             </Border>
-            <StackPanel
+            
+            <DockPanel
+                Height="AUTO"
+                MaxHeight="520"
                 Grid.Row="1"
                 Grid.Column="0"
-                Grid.ColumnSpan="3">
+                Grid.ColumnSpan="3"
+                VerticalAlignment="Top">
                 
-                <DataGrid>
-                    <DataGrid.RowStyle>
-                        <Style TargetType="{x:Type DataGridRow}">
-                            <Setter Property="Background" Value="AliceBlue"/>
-                        </Style>
-                    </DataGrid.RowStyle>
-                    <DataGrid.CellStyle>
-                        <Style TargetType="{x:Type DataGridCell}">
-                            <Setter Property="Background" Value="AliceBlue"/>
-                        </Style>
-                    </DataGrid.CellStyle>
-                    <DataGrid.Style>
-                        <Style TargetType="{x:Type DataGrid}">
-                            <Setter Property="Background" Value="{StaticResource DeepGreyBrush}"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding Path=LightCheckState}" Value="True">
-                                    <Setter Property="Background" Value="{StaticResource FrostedWhiteBrush}"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </DataGrid.Style>
-                </DataGrid>
-            </StackPanel>
+            <DataGrid
+                IsReadOnly="True"
+                BorderThickness="0"
+                Name="DataGridTable"
+                SelectionUnit="FullRow"
+                SelectionMode="Extended"
+                HeadersVisibility="Column"
+                AutoGenerateColumns="False"
+                FlowDirection="RightToLeft"
+                ItemsSource="{Binding Table}"
+                VerticalScrollBarVisibility="Auto"
+                ScrollViewer.VerticalScrollBarVisibility="Auto"
+                MouseLeftButtonUp="DataGridTable_MouseLeftButtonUp">
+
+                <!--Styles-->
+                <DataGrid.Resources>
+                    <Style TargetType="{x:Type DataGrid}">
+                        <Setter Property="FontSize" Value="22"/>
+                        <Setter Property="AlternatingRowBackground">
+                            <Setter.Value>
+                                <LinearGradientBrush StartPoint="0 0" EndPoint="0 1">
+                                    <GradientStop Color="#bfd7ff" Offset="0"/>
+                                    <GradientStop Color="#000" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </DataGrid.Resources>
+
+                <!--Header Style-->
+                <DataGrid.ColumnHeaderStyle>
+                    <Style TargetType="{x:Type DataGridColumnHeader}">
+                        <Setter Property="FontSize" Value="22"/>
+                        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                        <Setter Property="Padding" Value="0 2"/>
+                        <Setter Property="Background">
+                            <Setter.Value>
+                                <LinearGradientBrush StartPoint="0 0" EndPoint="0 1 ">
+                                    <GradientStop Color="#bfd7ff" Offset="0 "/>
+                                    <GradientStop Color="#78abff" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </DataGrid.ColumnHeaderStyle>
+
+                <!--Rows Style-->
+                <DataGrid.RowStyle>
+                    <Style TargetType="{x:Type DataGridRow}">
+                        <Style.Triggers>
+                            <Trigger Property="AlternationIndex" Value="0">
+                                <Setter Property="Background">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0 0" EndPoint="0 1">
+                                            <GradientStop Color="#25d982" Offset="0"/>
+                                            <GradientStop Color="#10c070" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </Style.Triggers>
+                        <Setter Property="Background">
+                            <Setter.Value>
+                                <LinearGradientBrush StartPoint="0 0" EndPoint="0 1">
+                                    <GradientStop Color="#78abff" Offset="0"/>
+                                    <GradientStop Color="#6090e0" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </DataGrid.RowStyle>
+
+                <!--Cell Style-->
+                <DataGrid.CellStyle>
+                    <Style TargetType="{x:Type DataGridCell}">
+                        <Style.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Foreground" Value="Black"/>
+                                <Setter Property="Background">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0 0" EndPoint="0 1">
+                                            <GradientStop Color="#afafaf" Offset="0"/>
+                                            <GradientStop Color="#909090" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.CellStyle>
+
+                <DataGrid.Columns>
+
+                    <!--cart number-->
+                    <DataGridTextColumn
+                            Binding="{Binding CellType}"
+                            Header="סוג סוללה"
+                            Width="*">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <!--cart number-->
+                    <DataGridTextColumn
+                            Binding="{Binding CartNumber}"
+                            Header="מספר עגלה"
+                            Width="*">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <!--Tray barcode number-->
+                    <DataGridTextColumn
+                            Binding="{Binding TrayBarcode}"
+                            Header="ברקוד מגש"
+                            Width="*">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <!--Number of cells in a tray-->
+                    <DataGridTextColumn
+                            Binding="{Binding CellCount}"
+                            Header="מספר תאים במגש"
+                            Width="*">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <!--Operation date-->
+                    <DataGridTextColumn
+                            Binding="{Binding Date, StringFormat=dd/MM/yyyy}"
+                            Header="תאריך מילוי"
+                            Width="*">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <!--The operation time stamp-->
+                    <DataGridTextColumn
+                            Binding="{Binding TimeStamp}"
+                            Header="שעת מילוי"
+                            Width="*">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                </DataGrid.Columns>
+            </DataGrid>
+            </DockPanel>
         </Grid>
     </Border>
 </Window>

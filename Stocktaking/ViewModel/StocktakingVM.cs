@@ -1,229 +1,361 @@
 ﻿using ClassRunner4_6_1DotNet.common;
+using CommonWindows;
 using MilBatDBModels.Common;
+using Stocktaking.Classes;
 using Stocktaking.ViewModel.Base;
 using Stocktaking.Views;
 using System;
 using System.ComponentModel;
+using System.Data.SqlClient;
+using System.Drawing;
+using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using TB = System.Windows.Controls.TextBlock;
 using Trigger = Stocktaking.Models.Trigger;
 
-namespace Stocktaking.ViewModel
+namespace Stocktaking.ViewModel;
+public class StocktakingVM : BaseVM, INotifyPropertyChanged
 {
-    public class StocktakingVM : BaseVM, INotifyPropertyChanged
+    #region Constructor
+
+    public StocktakingVM(BarcodeManager barcodeManager, Window window, StackPanel historyPanel) : base(window)
     {
-        #region Constructor
-
-        public StocktakingVM(BarcodeManager barcodeManager, Window window) : base(window)
-        {
-            _window = window;
-            _barcodeManager = barcodeManager;
-            _barcodeManager.BarcodeAction = BarcodeEvent;
-        }
-
-        #endregion
-
-        #region Commands
-
-        private ICommand _ReportWindow;
-        public ICommand ReportWindow => _ReportWindow ??= new RelayCommand(OpenReportWindow);
-
-        #endregion
-
-        #region Full Properties
-
-        private string _Barcode;
-        public string Barcode
-        {
-            get => _Barcode;
-            set
-            {
-                _Barcode = value;
-                BarcodeEvent(value.ToString());
-                OnPropertyChanged(nameof(_Barcode));
-            }
-        }
-
-        #endregion
-
-        #region Variables
-
-        // Main window reference
-        private readonly Window _window;
-
-        // Flag to check if the ReportWindow is already opened
-        private bool _isReportWindowOpen = false;
-
-        // Serial port barcode scanner manager
-        private readonly BarcodeManager _barcodeManager;
-
-        #endregion
-
-        #region Properties
-
-        public string BatteryNumber { get; private set; }
-
-        #endregion
-
-        #region Methods
-
-        /// <summary>
-        /// Performing communication with the 'SICK' camera and get the number of batteries in the tray
-        /// Then save the data to SQL
-        /// </summary>
-        /// <param name="barcode"></param>
-        public void BarcodeEvent(string barcode)
-        {
-            string countedTray = Trigger.PerformTrigger(_window.Close);
-            BatteryNumber = countedTray;
-            if (!ShowMode)
-            {
-
-            }
-        }
-
-        private void OpenReportWindow()
-        {
-            if (_isReportWindowOpen) return;
-            _isReportWindowOpen = true;
-            _window.WindowState = WindowState.Minimized;
-            Thread reportWindowThread = new(new ThreadStart(new Action(() =>
-                {
-                    ReportWindow reportWindow = new();
-                    reportWindow.Closed += delegate
-                    {
-                        _isReportWindowOpen = false;
-                        Application.Current.Dispatcher?.Invoke(
-                            new Action(() => 
-                            { 
-                                _window.WindowState = WindowState.Normal; 
-                            }));
-                        Dispatcher.CurrentDispatcher.BeginInvokeShutdown(DispatcherPriority.Background);
-                    };
-                    reportWindow.ShowDialog();
-                    Dispatcher.Run();
-                })));
-            reportWindowThread.SetApartmentState(ApartmentState.STA);
-            reportWindowThread.IsBackground = true;
-            reportWindowThread.Start();
-        }
-
-        #endregion
+        _window = window;
+        _barcodeManager = barcodeManager;
+        _barcodeManager.BarcodeAction = BarcodeEvent;
+        _historyPanel = historyPanel;
     }
 
-    //public class StocktakingVM : IniBase, INotifyPropertyChanged
-    //{
-    //    #region Constructor
+    #endregion
 
-    //    public StocktakingVM(BarcodeManager barcodeManager, Window window) : base(_savePropertiesPath)
-    //    {
-    //        _window = window;
-    //        _barcodeManager = barcodeManager;
-    //        _barcodeManager.BarcodeAction = BarcodeEvent;
-    //        _LightCheckState = bool.Parse(GetString(_majorKey, _lightMinorKey, "true"));
-    //        _ShowMode = bool.Parse(GetString(_majorKey, _modeMinorKey, "true"));
-    //    }
+    #region Commands
 
-    //    #endregion
+    private ICommand _ReportWindow;
+    public ICommand ReportWindow => _ReportWindow ??= new RelayCommand(OpenReportWindow);
 
-    //    #region Variables
+    private ICommand _EnterBarcode;
+    public ICommand EnterBarcode => _EnterBarcode ??= new RelayCommand(() => BarcodeEvent(Barcode));
 
-    //    // Closing action of the main app
-    //    private readonly Window _window;
+    #endregion
 
-    //    // Major and Minor keys for the Inifile
-    //    private readonly string _modeMinorKey = "Mode";
-    //    private readonly string _lightMinorKey = "Light";
-    //    private readonly string _majorKey = "Stocktaking";
+    #region Full Properties
 
-    //    // The path to save the user preferences
-    //    private static readonly string _savePropertiesPath = @"C:\pulser\GlobalConfig.ini";
+    private string _Barcode;
+    public string Barcode
+    {
+        get => _Barcode;
+        set
+        {
+            _Barcode = value;
+            OnPropertyChanged(nameof(Barcode));
+        }
+    }
 
-    //    // Serial port barcode scanner manager
-    //    private readonly BarcodeManager _barcodeManager;
+    // The image of the tray as captured by the `SICK` camera
+    private BitmapSource _TrayImage;
+    public BitmapSource TrayImage 
+    {
+        get => _TrayImage;
+        set
+        {
+            _TrayImage = value;
+            OnPropertyChanged(nameof(TrayImage));
+        }
+    }
 
-    //    public event PropertyChangedEventHandler PropertyChanged = (sender, e) => { };
+    #endregion
 
-    //    #endregion
+    #region Variables
 
-    //    #region Properties
+    // The cell type
+    private string _cellType;
 
-    //    public string BatteryNumber { get; private set; }
+    // The path to the tray image
+    private const string _ImagePath = @"C:\Formation\nova\nova_im.png";
 
-    //    #endregion
+    // Main window reference
+    private readonly Window _window;
 
-    //    #region Full Properties
+    // Flag to check if the ReportWindow is already opened
+    private bool _isReportWindowOpen = false;
 
-    //    private string _Barcode;
-    //    public string Barcode
-    //    {
-    //        get => _Barcode;
-    //        set
-    //        {
-    //            _Barcode = value;
-    //            BarcodeEvent(value.ToString());
-    //        }
-    //    }
+    // History stack panel
+    private readonly StackPanel _historyPanel;
 
-    //    private bool _LightCheckState;
-    //    public bool LightCheckState
-    //    {
-    //        get => _LightCheckState;
-    //        set
-    //        {
-    //            _LightCheckState = value;
-    //            WriteData(_majorKey, _lightMinorKey, value);
-    //        }
-    //    }
+    // Serial port barcode scanner manager
+    private readonly BarcodeManager _barcodeManager;
 
-    //    private bool _ShowMode;
-    //    public bool ShowMode 
-    //    {
-    //        get => _ShowMode;
-    //        set
-    //        {
-    //            _ShowMode = value;
-    //            WriteData(_majorKey, _modeMinorKey, value);
-    //        }
-    //    }
+    #endregion
 
-    //    #endregion
+    #region Properties
 
-    //    #region Commands
+    // The number of cells in the tray
+    public string CellCount { get; private set; }
 
-    //    private ICommand _closeButton;
-    //    public ICommand CloseButton => _closeButton ??= new RelayCommand(_window.Close);
+    // The number of the cart
+    public string CartBarcodeNumber { get; private set; }
 
-    //    private ICommand _minimizeButton;
-    //    public ICommand MinimizeButton => _minimizeButton ??= new RelayCommand(() => _window.WindowState = WindowState.Minimized);
+    #endregion
 
-    //    #endregion
+    #region Methods
 
-    //    #region Methods
+    /// <summary>
+    /// Performing communication with the 'SICK' camera and get the number of batteries in the tray
+    /// Then save the data to SQL
+    /// </summary>
+    /// <param name="barcode">The bacode number of the battery tray or cart</param>
+    public void BarcodeEvent(string barcode)
+    {
+        if (barcode?.Length is null or < 1) return;
 
-    //    /// <summary>
-    //    /// Performing communication  with the 'SICK' camera and get the number of batteries in the tray
-    //    /// Then save the data to SQL
-    //    /// </summary>
-    //    /// <param name="barcode"></param>
-    //    private void BarcodeEvent(string barcode)
-    //    {
-    //        string countedTray = Trigger.PerformTrigger(_window.Close);
-    //        BatteryNumber = countedTray;
-    //        if (!_ShowMode)
-    //        {
+        TB textBlock = new()
+        {
+            FontSize = 26F
+        };
+        TB cuption = new()
+        {
+            FontSize = 32F,
+            FontWeight = FontWeights.Bold,
+            TextDecorations = TextDecorations.Underline
+        };
 
-    //        }
-    //    }
+        // In case of cart barcode
+        if (barcode.Length <= 3 && !ShowMode)
+        {
+            Barcode = string.Empty;
+            _cellType = null;
+            while (string.IsNullOrEmpty(_cellType))
+            {
+                InputWindows batteryTypeInput = new("אנא הכנס/י את דגם התא", "אישור", "יציאה");
+                batteryTypeInput.ShowDialog();
+                _cellType = batteryTypeInput.ResultValue;
+                if (batteryTypeInput.IsUserClosed) return;
+            }
+            CartBarcodeNumber = barcode;
+            cuption.Text = $"עגלה: {barcode}";
+            _historyPanel.Children.Add(cuption);
+        }
+        // In case of tray barcode
+        else
+        {
+            if (CartBarcodeNumber == null && !ShowMode)
+            {
+                new InfoBox("אישור", "יש להכניס מספר עגלה").ShowDialog();
+                return;
+            }
+            CellCount = Trigger.PerformTrigger();
+            textBlock.Text = $"מגש: {barcode}";
+            _historyPanel.Children.Add(textBlock);
+            if (!ShowMode)
+            {
+                // Check if the tray from the same day already exist
+                if (IsTrayExist(barcode) is StocktakingData stocktakingData)
+                {
+                    YesNoWindow yesNo = new("המגש כבר קיים במערכת, האם להחליף בינהם?");
+                    yesNo.ShowDialog();
+                    if (yesNo.ResultYes)
+                    {
+                        try
+                        {
+                            UpdateData(stocktakingData);
+                            new InfoBox("אישור", "נתוני מגש עודכנו בהצלחה", MessageLevel.OK).ShowDialog();
+                        }
+                        catch (Exception e)
+                        {
+                            new InfoBox("אישור", $"עדכון הנתונים כשל\n{e.Message}").ShowDialog();
+                        }
+                    }
+                }
+                else
+                {
+                    while (!InsertStocktaking(barcode))
+                    {
+                        YesNoWindow yesNoWindow = new("הכנסת הנתונים לשרת לא צלחה, לנסות בשנית?");
+                        yesNoWindow.ShowDialog();
+                        if (!yesNoWindow.ResultYes) return;
+                    }
+                }
+            }
+            GetTrayImage();
+        }
+    }
 
-    //    /// <summary>
-    //    /// Fire the <see cref="PropertyChanged"/> event
-    //    /// </summary>
-    //    /// <param name="name">The property actual name</param>
-    //    private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    /// <summary>
+    /// Get the image as captured by the `SICK` camera
+    /// </summary>
+    private void GetTrayImage()
+    {
+        while (Directory.GetFiles(Path.GetDirectoryName(_ImagePath)).Length == 0)
+        {
+            Thread.Sleep(250);
+        }
+        Bitmap bitmap = System.Drawing.Image.FromFile(_ImagePath, true) as Bitmap;
+        Bitmap image = new(bitmap);
+        bitmap.Dispose();
+        TrayImage = BitmapToBitmapSource(image);
+        File.Delete(_ImagePath);
+    }
 
-    //    #endregion
-    //}
+    /// <summary>
+    /// Update the date, time and cell count of the corresponding data
+    /// </summary>
+    /// <param name="data"><see cref="StocktakingData"/> object with the data from the SQL Server</param>
+    /// <returns><see langword="true"/> if the data were updated successfully, otherwise <see langword="false"/></returns>
+    private bool UpdateData(StocktakingData data)
+    {
+        using SqlConnection connection = new(connectionString);
+        string query = @"UPDATE [StocktakingData]
+                             SET [Date] = @NewDate, [CellCount] = @NewCellCount, [TimeStamp] = @NewTime, [CellType] = @NewCellType
+                             WHERE [TrayBarcode] = @TrayBarcode
+                             AND [CartNumber] = @CartNumber
+                             AND [Date] = @Date";
+        try
+        {
+            connection.Open();
+            using SqlCommand command = new(query, connection);
+            command.Parameters.AddWithValue("@Date", data.date.ToString("d"));
+            command.Parameters.AddWithValue("@TrayBarcode", data.tray);
+            command.Parameters.AddWithValue("@CartNumber", data.cart);
+            command.Parameters.AddWithValue("@NewCellCount", CellCount);
+            command.Parameters.AddWithValue("@NewCellType", _cellType);
+            command.Parameters.AddWithValue("@NewDate", DateTime.Now.ToString("d"));
+            command.Parameters.AddWithValue("@NewTime", DateTime.Now.ToString("T"));
+            command.ExecuteNonQuery();
+            return true;
+        }
+        catch (Exception e)
+        {
+            return false;
+            throw e;
+        }
+        finally
+        {
+            connection.Close();
+        }
+    }
+
+    /// <summary>
+    /// Check if the current tray already exist
+    /// </summary>
+    /// <param name="barcode">The specified tray barcode</param>
+    /// <returns><see cref="StocktakingData"/> with the data on the tray; Otherwise<see langword="null"/></returns>
+    private StocktakingData IsTrayExist(string barcode)
+    {
+        using SqlConnection connection = new(connectionString);
+        string query = @"SELECT TOP 1 * FROM [StocktakingData]
+                             WHERE [TrayBarcode] = @TrayBarcode
+                             AND [CartNumber] = @CartNumber
+                             AND [Date] = @Date";
+        try
+        {
+            connection.Open();
+            using SqlCommand command = new(query, connection);
+            command.Parameters.AddWithValue("@TrayBarcode", barcode);
+            command.Parameters.AddWithValue("@CartNumber", CartBarcodeNumber);
+            command.Parameters.AddWithValue("@Date", DateTime.Now.ToString("d"));
+            using SqlDataReader reader = command.ExecuteReader();
+            if (reader.Read() && reader.HasRows)
+            {
+                return new StocktakingData(
+                    reader.GetDateTime(0),
+                    reader.GetInt32(1),
+                    reader.GetString(2),
+                    reader.GetString(3),
+                    reader.GetString(4),
+                    reader.GetString(5));
+            }
+        }
+        finally
+        {
+            connection.Close();
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// Insert the given data to the SQL table Stocktaking
+    /// </summary>
+    /// <param name="barcode">The battrey tray barcode</param>
+    /// <param name="cellAmount">The number of cells in the tray</param>
+    /// <returns><see langword="true"/> if the insert was successful; Otherwise <see langword="false"/></returns>
+    private bool InsertStocktaking(string barcode)
+    {
+        string query = @"INSERT INTO StocktakingData (Date, CellCount, TimeStamp, TrayBarcode, CartNumber, CellType)
+                             VALUES (@Date, @CellCount, @TimeStamp, @TrayBarcode, @CartNumber, @CellType)";
+        using SqlConnection connection = new(connectionString);
+        connection.Open();
+        using SqlTransaction transaction = connection.BeginTransaction();
+        using SqlCommand command = new(query, connection, transaction);
+        try
+        {
+            command.Parameters.AddWithValue("@Date", DateTime.Now.ToString("d"));
+            command.Parameters.AddWithValue("@CellCount", CellCount);
+            command.Parameters.AddWithValue("@TimeStamp", DateTime.Now.ToString("T"));
+            command.Parameters.AddWithValue("@TrayBarcode", barcode);
+            command.Parameters.AddWithValue("@CartNumber", CartBarcodeNumber);
+            command.Parameters.AddWithValue("@CellType", _cellType);
+            command.ExecuteNonQuery();
+            transaction.Commit();
+        }
+        catch (Exception e)
+        {
+            transaction.Rollback();
+            return false;
+        }
+        finally
+        {
+            connection.Close();
+            command.Connection.Close();
+            transaction.Connection?.Close();
+        }
+        return true;
+    }
+
+    /// <summary>
+    /// Open new <see cref="ReportWindow"/>
+    /// </summary>
+    private void OpenReportWindow()
+    {
+        if (_isReportWindowOpen) return;
+        _isReportWindowOpen = true;
+        _window.WindowState = WindowState.Minimized;
+        Thread reportWindowThread = new(new ThreadStart(new Action(() =>
+        {
+            ReportWindow reportWindow = new();
+            reportWindow.Closed += delegate
+            {
+                _isReportWindowOpen = false;
+                Application.Current.Dispatcher?.Invoke(
+                    new Action(() =>
+                    {
+                        _window.WindowState = WindowState.Normal;
+                    }));
+                Dispatcher.CurrentDispatcher.BeginInvokeShutdown(DispatcherPriority.Background);
+            };
+            reportWindow.ShowDialog();
+            Dispatcher.Run();
+        }))){ IsBackground = true };
+        reportWindowThread.SetApartmentState(ApartmentState.STA);
+        reportWindowThread.Start();
+    }
+
+    /// <summary>
+    /// Convert <see cref="Bitmap"/> image to <see cref="BitmapSource"/>
+    /// </summary>
+    /// <param name="source">The <see cref="Bitmap"/> image to convert</param>
+    /// <returns>The converted <see cref="Bitmap"/> image as <see cref="BitmapSource"/></returns>
+    public static BitmapSource BitmapToBitmapSource(Bitmap source)
+        => System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
+           source.GetHbitmap(),
+           IntPtr.Zero,
+           Int32Rect.Empty,
+           BitmapSizeOptions.FromEmptyOptions());
+    #endregion
 }
