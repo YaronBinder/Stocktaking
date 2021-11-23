@@ -9,7 +9,7 @@
                 <ResourceDictionary Source="pack://application:,,,/Styles/Colors.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Styles/Styles.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Styles/ToolTip.xaml"/>
-                <ResourceDictionary Source="/CommonWindows;component/Styles/ScrollBar.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/CommonWindows;component/Styles/ScrollBar.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

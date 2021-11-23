@@ -45,7 +45,7 @@
                                         <ColorAnimation 
                                             Duration="0:0:0.1"
                                             From="#00000000"
-                                            To="#60000000"
+                                            To="#30000000"
                                             Storyboard.TargetProperty="Background.Color"/>
                                     </Storyboard>
                                 </BeginStoryboard>
@@ -57,8 +57,34 @@
                                     <Storyboard>
                                         <ColorAnimation 
                                             Duration="0:0:0.1"
-                                            From="#60000000"
+                                            From="#30000000"
                                             To="#00000000"
+                                            Storyboard.TargetProperty="Background.Color"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger.Actions>
+                        </EventTrigger>
+                        <EventTrigger RoutedEvent="PreviewMouseLeftButtonDown">
+                            <EventTrigger.Actions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <ColorAnimation 
+                                            Duration="0:0:0.1"
+                                            From="#30000000"
+                                            To="#60000000"
+                                            Storyboard.TargetProperty="Background.Color"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger.Actions>
+                        </EventTrigger>
+                        <EventTrigger RoutedEvent="PreviewMouseLeftButtonUp">
+                            <EventTrigger.Actions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <ColorAnimation 
+                                            Duration="0:0:0.1"
+                                            From="#60000000"
+                                            To="#30000000"
                                             Storyboard.TargetProperty="Background.Color"/>
                                     </Storyboard>
                                 </BeginStoryboard>
