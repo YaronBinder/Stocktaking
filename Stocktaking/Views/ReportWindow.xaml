@@ -11,7 +11,7 @@
         mc:Ignorable="d" Height="725" Width="1200" WindowStartupLocation="CenterScreen"
         Title="ReportWindow" FlowDirection="RightToLeft" SnapsToDevicePixels="True"
         AllowsTransparency="True" Background="Transparent"
-        WindowStyle="None" ResizeMode="CanMinimize">
+        WindowStyle="None" ResizeMode="CanMinimize" IsEnabled="{Binding IsNotInProcess, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
 
     <Window.Resources>
         <ControlTemplate x:Key="validationTemplate">
@@ -78,12 +78,21 @@
                                             <GradientStop Color="#FEAC5E" Offset="0"/>
                                             <GradientStop Color="#C779D0" Offset="0.5"/>
                                             <GradientStop Color="#4BC0C8" Offset="1"/>
+                                            <LinearGradientBrush.RelativeTransform>
+                                                <RotateTransform CenterX="0.5" CenterY="0.5"/>
+                                            </LinearGradientBrush.RelativeTransform>
                                         </LinearGradientBrush>
                                     </Setter.Value>
                                 </Setter>
                                 <Trigger.EnterActions>
                                     <BeginStoryboard>
                                         <Storyboard>
+                                            <DoubleAnimation 
+                                                To="359"
+                                                From="0"
+                                                RepeatBehavior="Forever"
+                                                Duration="00:00:10" 
+                                                Storyboard.TargetProperty="(Border.BorderBrush).(Brush.RelativeTransform).(RotateTransform.Angle)"/>
                                             <DoubleAnimation
                                                 To="1"
                                                 Storyboard.TargetProperty="(Effect).Opacity"
@@ -278,7 +287,7 @@
                             Command="{Binding ExcelReport}"
                             ToolTip="צור דוח אקסל">
                             <Button.Content>
-                                <Image Source="\\FILES\Departments\ProgDev\lastVersion\YaronProgramsDevelopment\Code\Stocktaking\Assets\Excel-logo.png"/>
+                                <Image Source="{StaticResource Excel}"/>
                             </Button.Content>
                             <Button.Style>
                                 <Style TargetType="{x:Type Button}">
@@ -313,12 +322,21 @@
                                                                     <GradientStop Color="#FEAC5E" Offset="0"/>
                                                                     <GradientStop Color="#C779D0" Offset="0.5"/>
                                                                     <GradientStop Color="#4BC0C8" Offset="1"/>
+                                                                    <LinearGradientBrush.RelativeTransform>
+                                                                        <RotateTransform CenterX="0.5" CenterY="0.5"/>
+                                                                    </LinearGradientBrush.RelativeTransform>
                                                                 </LinearGradientBrush>
                                                             </Setter.Value>
                                                         </Setter>
                                                         <Trigger.EnterActions>
                                                             <BeginStoryboard>
                                                                 <Storyboard>
+                                                                    <DoubleAnimation 
+                                                                        From="359"
+                                                                        To="0"
+                                                                        RepeatBehavior="Forever"
+                                                                        Duration="00:00:2" 
+                                                                        Storyboard.TargetProperty="(Border.BorderBrush).(Brush.RelativeTransform).(RotateTransform.Angle)"/>
                                                                     <ThicknessAnimation
                                                                         To="10"
                                                                         Storyboard.TargetProperty="BorderThickness"
@@ -367,7 +385,7 @@
                                     Command="{Binding RefreshTable}"
                                     ToolTip="רענן טבלה">
                                     <Button.Content>
-                                        <Image Source="\\FILES\Departments\ProgDev\lastVersion\YaronProgramsDevelopment\Code\Stocktaking\Assets\Refresh.png"/>
+                                        <Image Source="{StaticResource Refresh}"/>
                                     </Button.Content>
                                     <Button.Style>
                                         <Style TargetType="{x:Type Button}">
@@ -402,12 +420,21 @@
                                                                             <GradientStop Color="#FEAC5E" Offset="0"/>
                                                                             <GradientStop Color="#C779D0" Offset="0.5"/>
                                                                             <GradientStop Color="#4BC0C8" Offset="1"/>
+                                                                            <LinearGradientBrush.RelativeTransform>
+                                                                                <RotateTransform CenterX="0.5" CenterY="0.5"/>
+                                                                            </LinearGradientBrush.RelativeTransform>
                                                                         </LinearGradientBrush>
                                                                     </Setter.Value>
                                                                 </Setter>
                                                                 <Trigger.EnterActions>
                                                                     <BeginStoryboard>
                                                                         <Storyboard>
+                                                                            <DoubleAnimation 
+                                                                                From="359"
+                                                                                To="0"
+                                                                                RepeatBehavior="Forever"
+                                                                                Duration="00:00:2" 
+                                                                                Storyboard.TargetProperty="(Border.BorderBrush).(Brush.RelativeTransform).(RotateTransform.Angle)"/>
                                                                             <ThicknessAnimation
                                                                                 To="10"
                                                                                 Storyboard.TargetProperty="BorderThickness"
@@ -446,7 +473,7 @@
                                     Command="{Binding DeleteRow}"
                                     ToolTip="מחק רשומות נבחרות">
                                     <Button.Content>
-                                        <Image Source="\\FILES\Departments\ProgDev\lastVersion\YaronProgramsDevelopment\Code\Stocktaking\Assets\Delete.png"/>
+                                        <Image Source="{StaticResource Eraser}"/>
                                     </Button.Content>
                                     <Button.Style>
                                         <Style TargetType="{x:Type Button}">
@@ -481,12 +508,21 @@
                                                                             <GradientStop Color="#FEAC5E" Offset="0"/>
                                                                             <GradientStop Color="#C779D0" Offset="0.5"/>
                                                                             <GradientStop Color="#4BC0C8" Offset="1"/>
+                                                                            <LinearGradientBrush.RelativeTransform>
+                                                                                <RotateTransform CenterX="0.5" CenterY="0.5"/>
+                                                                            </LinearGradientBrush.RelativeTransform>
                                                                         </LinearGradientBrush>
                                                                     </Setter.Value>
                                                                 </Setter>
                                                                 <Trigger.EnterActions>
                                                                     <BeginStoryboard>
                                                                         <Storyboard>
+                                                                            <DoubleAnimation 
+                                                                                From="359"
+                                                                                To="0"
+                                                                                RepeatBehavior="Forever"
+                                                                                Duration="00:00:2" 
+                                                                                Storyboard.TargetProperty="(Border.BorderBrush).(Brush.RelativeTransform).(RotateTransform.Angle)"/>
                                                                             <ThicknessAnimation
                                                                                 To="10"
                                                                                 Storyboard.TargetProperty="BorderThickness"

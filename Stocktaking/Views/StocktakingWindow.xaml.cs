@@ -1,12 +1,8 @@
 ﻿using System.Windows;
-using Stocktaking.ViewModel;
-using ClassRunner4_6_1DotNet.common;
 using System.Windows.Input;
-using System.Diagnostics;
 using System.Windows.Media.Animation;
-using System.Windows.Controls;
-using System;
-using System.Threading;
+using ClassRunner.common;
+using Stocktaking.ViewModel;
 
 namespace Stocktaking;
 
@@ -20,10 +16,9 @@ public partial class StocktakingWindow : Window
     public StocktakingWindow()
     {
         InitializeComponent();
-        BarcodeManager barcodeManager = new();
+        ScannerManager barcodeManager = new();
         DataContext = new StocktakingVM(barcodeManager, this, HistoryPanel);
         Closed += barcodeManager.Close;
-        HistoryBtn.Click += OpenClose_Click;
     }
 
     private void Rectangle_MouseDown(object sender, MouseButtonEventArgs e) => DragMove();

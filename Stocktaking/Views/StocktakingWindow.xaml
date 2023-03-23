@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         x:Name="StocktakingApp" WindowStartupLocation="CenterScreen"
         ResizeMode="CanMinimize" SnapsToDevicePixels="True"
-        xmlns:Toggle="clr-namespace:CommonWindows.ToggleSwitch;assembly=CommonWindows"
+        xmlns:Toggle="clr-namespace:Switch;assembly=Switch"
         xmlns:viewmodel="clr-namespace:Stocktaking.ViewModel;assembly=Stocktaking" 
         xmlns:models="clr-namespace:Stocktaking.Models"
         d:DataContext="{d:DesignInstance Type=viewmodel:StocktakingVM}"
@@ -22,7 +22,7 @@
             <DoubleAnimation 
                 Storyboard.TargetProperty="Width" 
                 From="0" 
-                To="250" 
+                To="250"
                 DecelerationRatio="1" 
                 Duration="0:0:0.5"/>
             <DoubleAnimation
@@ -188,18 +188,18 @@
                     </TextBlock>
 
                     <!--Mode switch selector-->
-                    <Toggle:ToggleSwitch
-                        Grid.Column="1"
-                        Grid.Row="2"
-                        x:Name="Mode"
-                        OnColor="{StaticResource ShowModeBrush}" 
-                        OffColor="{StaticResource StocktakingModeBrush}"
-                        SwitchHeight="50"
-                        IsChecked="{Binding ShowMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                        FlowDirection="LeftToRight"
-                        SwitchWidth="200">
-                        <Toggle:ToggleSwitch.Style>
-                            <Style TargetType="{x:Type Toggle:ToggleSwitch}">
+                    <Toggle:Switch x:Name="Mode"
+                                   Grid.Row="2"
+                                   Grid.Column="1"
+                                   SwitchWidth="200"
+                                   SwitchHeight="50"
+                                   FlowDirection="LeftToRight"
+                                   HorizontalAlignment="Center"
+                                   OnColor="{StaticResource ShowModeBrush}" 
+                                   OffColor="{StaticResource StocktakingModeBrush}"
+                                   IsChecked="{Binding ShowMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                        <Toggle:Switch.Style>
+                            <Style TargetType="{x:Type Toggle:Switch}">
                                 <Setter Property="ToggleColor" Value="{StaticResource FrostedWhiteBrush}"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding ElementName=Light, Path=IsChecked}" Value="False">
@@ -207,8 +207,8 @@
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
-                        </Toggle:ToggleSwitch.Style>
-                    </Toggle:ToggleSwitch>
+                        </Toggle:Switch.Style>
+                    </Toggle:Switch>
 
                     <!--Show mode text-->
                     <TextBlock
@@ -278,17 +278,17 @@
                     <TextBlock Text="מצב כהה" FontSize="24" Style="{StaticResource LargeHeader}"/>
 
                     <!--Light mode switch-->
-                    <Toggle:ToggleSwitch
-                        Margin="0 10 0 0"
-                        x:Name="Light"
-                        OnColor="{StaticResource DeepGreyBrush}" 
-                        OffColor="{StaticResource FrostedWhiteBrush}"
-                        SwitchHeight="30"
-                        FlowDirection="LeftToRight"
-                        IsChecked="{Binding LightCheckState, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                        SwitchWidth="70">
-                        <Toggle:ToggleSwitch.Style>
-                            <Style TargetType="{x:Type Toggle:ToggleSwitch}">
+                    <Toggle:Switch x:Name="Light"
+                                   SwitchWidth="70"
+                                   Margin="0 10 0 0"
+                                   SwitchHeight="30"
+                                   FlowDirection="LeftToRight"
+                                   HorizontalAlignment="Center"
+                                   OnColor="{StaticResource DeepGreyBrush}" 
+                                   OffColor="{StaticResource FrostedWhiteBrush}"
+                                   IsChecked="{Binding LightCheckState, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                        <Toggle:Switch.Style>
+                            <Style TargetType="{x:Type Toggle:Switch}">
                                 <Setter Property="ToggleColor" Value="{StaticResource FrostedWhiteBrush}"/>
                                 <Style.Triggers>
                                     <Trigger Property="IsChecked" Value="False">
@@ -296,8 +296,8 @@
                                     </Trigger>
                                 </Style.Triggers>
                             </Style>
-                        </Toggle:ToggleSwitch.Style>
-                    </Toggle:ToggleSwitch>
+                        </Toggle:Switch.Style>
+                    </Toggle:Switch>
 
                     <!--Barcode stack panel-->
                     <StackPanel
@@ -366,12 +366,21 @@
                                                                     <GradientStop Color="#FEAC5E" Offset="0"/>
                                                                     <GradientStop Color="#C779D0" Offset="0.5"/>
                                                                     <GradientStop Color="#4BC0C8" Offset="1"/>
+                                                                    <LinearGradientBrush.RelativeTransform>
+                                                                        <RotateTransform CenterX="0.5" CenterY="0.5"/>
+                                                                    </LinearGradientBrush.RelativeTransform>
                                                                 </LinearGradientBrush>
                                                             </Setter.Value>
                                                         </Setter>
                                                         <Trigger.EnterActions>
                                                             <BeginStoryboard>
                                                                 <Storyboard>
+                                                                    <DoubleAnimation 
+                                                                        From="359"
+                                                                        To="0"
+                                                                        RepeatBehavior="Forever"
+                                                                        Duration="00:00:10" 
+                                                                        Storyboard.TargetProperty="(Border.BorderBrush).(Brush.RelativeTransform).(RotateTransform.Angle)"/>
                                                                     <DoubleAnimation
                                                                         To="1"
                                                                         Storyboard.TargetProperty="(Effect).Opacity"
@@ -462,12 +471,21 @@
                                                                 <GradientStop Color="#FEAC5E" Offset="0"/>
                                                                 <GradientStop Color="#C779D0" Offset="0.5"/>
                                                                 <GradientStop Color="#4BC0C8" Offset="1"/>
+                                                                <LinearGradientBrush.RelativeTransform>
+                                                                    <RotateTransform CenterX="0.5" CenterY="0.5"/>
+                                                                </LinearGradientBrush.RelativeTransform>
                                                             </LinearGradientBrush>
                                                         </Setter.Value>
                                                     </Setter>
                                                     <Trigger.EnterActions>
                                                         <BeginStoryboard>
                                                             <Storyboard>
+                                                                <DoubleAnimation 
+                                                                    From="359"
+                                                                    To="0"
+                                                                    RepeatBehavior="Forever"
+                                                                    Duration="00:00:2" 
+                                                                    Storyboard.TargetProperty="(Border.BorderBrush).(Brush.RelativeTransform).(RotateTransform.Angle)"/>
                                                                 <ThicknessAnimation
                                                                     To="3"
                                                                     Storyboard.TargetProperty="BorderThickness"
@@ -596,7 +614,7 @@
                                         </EventTrigger>
                                     </Image.Triggers>
                                     <Image.RenderTransform>
-                                        <ScaleTransform ScaleX="-1" ScaleY="-1"/>
+                                        <ScaleTransform ScaleY="-1"/>
                                     </Image.RenderTransform>
                                 </Image>
                             </StackPanel>
@@ -608,7 +626,7 @@
                         <StackPanel.LayoutTransform>
                             <RotateTransform Angle="-90"/>
                         </StackPanel.LayoutTransform>
-                        <Button x:Name="HistoryBtn" HorizontalAlignment="Center" Margin="50,0,0,0">
+                        <Button Click="OpenClose_Click" HorizontalAlignment="Center" Margin="50,0,0,0">
                             <Button.Style>
                                 <Style TargetType="{x:Type Button}">
                                     <Setter Property="Background" Value="{StaticResource FrostedWhiteBrush}"/>

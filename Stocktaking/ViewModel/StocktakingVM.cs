@@ -1,5 +1,7 @@
-﻿using ClassRunner4_6_1DotNet.common;
+﻿using ClassRunner;
+using ClassRunner.common;
 using CommonWindows;
+using DevTools;
 using MilBatDBModels.Common;
 using Stocktaking.Classes;
 using Stocktaking.ViewModel.Base;
@@ -10,27 +12,100 @@ using System.Data.SqlClient;
 using System.Drawing;
 using System.IO;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using static Stocktaking.Models.Trigger;
 using TB = System.Windows.Controls.TextBlock;
-using Trigger = Stocktaking.Models.Trigger;
 
 namespace Stocktaking.ViewModel;
 public class StocktakingVM : BaseVM, INotifyPropertyChanged
 {
     #region Constructor
 
-    public StocktakingVM(BarcodeManager barcodeManager, Window window, StackPanel historyPanel) : base(window)
+    public StocktakingVM(ScannerManager barcodeManager, Window window, StackPanel historyPanel) : base(window)
     {
         _window = window;
         _barcodeManager = barcodeManager;
-        _barcodeManager.BarcodeAction = BarcodeEvent;
+        _barcodeManager.ScannerAction = BarcodeEvent;
         _historyPanel = historyPanel;
+    }
+
+    #endregion
+
+    #region Variables
+
+    /// <summary>
+    /// The cell type
+    /// </summary>
+    private string _cellType;
+
+    /// <summary>
+    /// The path to the tray image
+    /// </summary>
+    private const string _ImagePath = @"C:\Formation\nova\nova_im.png";
+
+    /// <summary>
+    /// Main window reference
+    /// </summary>
+    private readonly Window _window;
+
+    /// <summary>
+    /// History stack panel
+    /// </summary>
+    private readonly StackPanel _historyPanel;
+
+    /// <summary>
+    /// Serial port barcode scanner manager
+    /// </summary>
+    private readonly ScannerManager _barcodeManager;
+
+    #endregion
+
+    #region Properties
+
+    /// <summary>
+    /// The number of cells in the tray
+    /// </summary>
+    public string CellCount { get; private set; }
+
+    /// <summary>
+    /// Full info about the tray
+    /// </summary>
+    public TrayInfo Info { get; private set; }
+
+    /// <summary>
+    /// The number of the cart
+    /// </summary>
+    public string CartBarcodeNumber { get; private set; }
+
+    #endregion
+
+    #region Full Properties
+
+    private string _Barcode;
+    public string Barcode
+    {
+        get => _Barcode;
+        set
+        {
+            _Barcode = value;
+            OnPropertyChanged();
+        }
+    }
+
+    // The image of the tray as captured by the `SICK` camera
+    private BitmapSource _TrayImage;
+    public BitmapSource TrayImage
+    {
+        get => _TrayImage;
+        set
+        {
+            _TrayImage = value;
+            OnPropertyChanged();
+        }
     }
 
     #endregion
@@ -45,65 +120,6 @@ public class StocktakingVM : BaseVM, INotifyPropertyChanged
 
     #endregion
 
-    #region Full Properties
-
-    private string _Barcode;
-    public string Barcode
-    {
-        get => _Barcode;
-        set
-        {
-            _Barcode = value;
-            OnPropertyChanged(nameof(Barcode));
-        }
-    }
-
-    // The image of the tray as captured by the `SICK` camera
-    private BitmapSource _TrayImage;
-    public BitmapSource TrayImage 
-    {
-        get => _TrayImage;
-        set
-        {
-            _TrayImage = value;
-            OnPropertyChanged(nameof(TrayImage));
-        }
-    }
-
-    #endregion
-
-    #region Variables
-
-    // The cell type
-    private string _cellType;
-
-    // The path to the tray image
-    private const string _ImagePath = @"C:\Formation\nova\nova_im.png";
-
-    // Main window reference
-    private readonly Window _window;
-
-    // Flag to check if the ReportWindow is already opened
-    private bool _isReportWindowOpen = false;
-
-    // History stack panel
-    private readonly StackPanel _historyPanel;
-
-    // Serial port barcode scanner manager
-    private readonly BarcodeManager _barcodeManager;
-
-    #endregion
-
-    #region Properties
-
-    // The number of cells in the tray
-    public string CellCount { get; private set; }
-
-    // The number of the cart
-    public string CartBarcodeNumber { get; private set; }
-
-    #endregion
-
     #region Methods
 
     /// <summary>
@@ -113,8 +129,10 @@ public class StocktakingVM : BaseVM, INotifyPropertyChanged
     /// <param name="barcode">The bacode number of the battery tray or cart</param>
     public void BarcodeEvent(string barcode)
     {
-        if (barcode?.Length is null or < 1) return;
-
+        if (barcode?.Length is null or < 1)
+        {
+            return;
+        }
         TB textBlock = new()
         {
             FontSize = 26F
@@ -127,7 +145,7 @@ public class StocktakingVM : BaseVM, INotifyPropertyChanged
         };
 
         // In case of cart barcode
-        if (barcode.Length <= 3 && !ShowMode)
+        if (barcode.TrimStart('0').Length <= 3 && !ShowMode)
         {
             Barcode = string.Empty;
             _cellType = null;
@@ -136,7 +154,8 @@ public class StocktakingVM : BaseVM, INotifyPropertyChanged
                 InputWindows batteryTypeInput = new("אנא הכנס/י את דגם התא", "אישור", "יציאה");
                 batteryTypeInput.ShowDialog();
                 _cellType = batteryTypeInput.ResultValue;
-                if (batteryTypeInput.IsUserClosed) return;
+                if (batteryTypeInput.IsUserClosed)
+                    return;
             }
             CartBarcodeNumber = barcode;
             cuption.Text = $"עגלה: {barcode}";
@@ -150,10 +169,12 @@ public class StocktakingVM : BaseVM, INotifyPropertyChanged
                 new InfoBox("אישור", "יש להכניס מספר עגלה").ShowDialog();
                 return;
             }
-            CellCount = Trigger.PerformTrigger();
+            Info = PerformTrigger();
+            CellCount = Info.Count;
             textBlock.Text = $"מגש: {barcode}";
             _historyPanel.Children.Add(textBlock);
-            if (!ShowMode)
+
+            if (!ShowMode && !Info.IsNoTray)
             {
                 // Check if the tray from the same day already exist
                 if (IsTrayExist(barcode) is StocktakingData stocktakingData)
@@ -169,7 +190,7 @@ public class StocktakingVM : BaseVM, INotifyPropertyChanged
                         }
                         catch (Exception e)
                         {
-                            new InfoBox("אישור", $"עדכון הנתונים כשל\n{e.Message}").ShowDialog();
+                            Logger.WriteLog(e, AppName);
                         }
                     }
                 }
@@ -179,7 +200,8 @@ public class StocktakingVM : BaseVM, INotifyPropertyChanged
                     {
                         YesNoWindow yesNoWindow = new("הכנסת הנתונים לשרת לא צלחה, לנסות בשנית?");
                         yesNoWindow.ShowDialog();
-                        if (!yesNoWindow.ResultYes) return;
+                        if (!yesNoWindow.ResultYes)
+                            return;
                     }
                 }
             }
@@ -192,15 +214,22 @@ public class StocktakingVM : BaseVM, INotifyPropertyChanged
     /// </summary>
     private void GetTrayImage()
     {
-        while (Directory.GetFiles(Path.GetDirectoryName(_ImagePath)).Length == 0)
+        try
         {
-            Thread.Sleep(250);
+            while (Directory.GetFiles(Path.GetDirectoryName(_ImagePath)).Length == 0)
+            {
+                Thread.Sleep(250);
+            }
+            Bitmap bitmap = System.Drawing.Image.FromFile(_ImagePath, true) as Bitmap;
+            Bitmap image = new(bitmap);
+            bitmap.Dispose();
+            TrayImage = BitmapToBitmapSource(image);
+            File.Delete(_ImagePath);
         }
-        Bitmap bitmap = System.Drawing.Image.FromFile(_ImagePath, true) as Bitmap;
-        Bitmap image = new(bitmap);
-        bitmap.Dispose();
-        TrayImage = BitmapToBitmapSource(image);
-        File.Delete(_ImagePath);
+        catch (Exception e)
+        {
+            Logger.WriteLog(e, AppName);
+        }
     }
 
     /// <summary>
@@ -212,10 +241,10 @@ public class StocktakingVM : BaseVM, INotifyPropertyChanged
     {
         using SqlConnection connection = new(connectionString);
         string query = @"UPDATE [StocktakingData]
-                             SET [Date] = @NewDate, [CellCount] = @NewCellCount, [TimeStamp] = @NewTime, [CellType] = @NewCellType
-                             WHERE [TrayBarcode] = @TrayBarcode
-                             AND [CartNumber] = @CartNumber
-                             AND [Date] = @Date";
+                         SET [Date] = @NewDate, [CellCount] = @NewCellCount, [TimeStamp] = @NewTime, [CellType] = @NewCellType
+                         WHERE [TrayBarcode] = @TrayBarcode
+                         AND [CartNumber] = @CartNumber
+                         AND [Date] = @Date";
         try
         {
             connection.Open();
@@ -229,11 +258,6 @@ public class StocktakingVM : BaseVM, INotifyPropertyChanged
             command.Parameters.AddWithValue("@NewTime", DateTime.Now.ToString("T"));
             command.ExecuteNonQuery();
             return true;
-        }
-        catch (Exception e)
-        {
-            return false;
-            throw e;
         }
         finally
         {
@@ -250,9 +274,9 @@ public class StocktakingVM : BaseVM, INotifyPropertyChanged
     {
         using SqlConnection connection = new(connectionString);
         string query = @"SELECT TOP 1 * FROM [StocktakingData]
-                             WHERE [TrayBarcode] = @TrayBarcode
-                             AND [CartNumber] = @CartNumber
-                             AND [Date] = @Date";
+                         WHERE [TrayBarcode] = @TrayBarcode
+                         AND [CartNumber] = @CartNumber
+                         AND [Date] = @Date";
         try
         {
             connection.Open();
@@ -272,6 +296,10 @@ public class StocktakingVM : BaseVM, INotifyPropertyChanged
                     reader.GetString(5));
             }
         }
+        catch (Exception e)
+        {
+            Logger.WriteLog(e, AppName);
+        }
         finally
         {
             connection.Close();
@@ -288,7 +316,7 @@ public class StocktakingVM : BaseVM, INotifyPropertyChanged
     private bool InsertStocktaking(string barcode)
     {
         string query = @"INSERT INTO StocktakingData (Date, CellCount, TimeStamp, TrayBarcode, CartNumber, CellType)
-                             VALUES (@Date, @CellCount, @TimeStamp, @TrayBarcode, @CartNumber, @CellType)";
+                         VALUES (@Date, @CellCount, @TimeStamp, @TrayBarcode, @CartNumber, @CellType)";
         using SqlConnection connection = new(connectionString);
         connection.Open();
         using SqlTransaction transaction = connection.BeginTransaction();
@@ -307,6 +335,7 @@ public class StocktakingVM : BaseVM, INotifyPropertyChanged
         catch (Exception e)
         {
             transaction.Rollback();
+            Logger.WriteLog(e, AppName);
             return false;
         }
         finally
@@ -323,27 +352,9 @@ public class StocktakingVM : BaseVM, INotifyPropertyChanged
     /// </summary>
     private void OpenReportWindow()
     {
-        if (_isReportWindowOpen) return;
-        _isReportWindowOpen = true;
-        _window.WindowState = WindowState.Minimized;
-        Thread reportWindowThread = new(new ThreadStart(new Action(() =>
-        {
-            ReportWindow reportWindow = new();
-            reportWindow.Closed += delegate
-            {
-                _isReportWindowOpen = false;
-                Application.Current.Dispatcher?.Invoke(
-                    new Action(() =>
-                    {
-                        _window.WindowState = WindowState.Normal;
-                    }));
-                Dispatcher.CurrentDispatcher.BeginInvokeShutdown(DispatcherPriority.Background);
-            };
-            reportWindow.ShowDialog();
-            Dispatcher.Run();
-        }))){ IsBackground = true };
-        reportWindowThread.SetApartmentState(ApartmentState.STA);
-        reportWindowThread.Start();
+        _window.Hide();
+        _ = new ReportWindow().ShowDialog();
+        _window.Show();
     }
 
     /// <summary>

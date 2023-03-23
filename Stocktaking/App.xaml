@@ -5,6 +5,10 @@
              StartupUri="Views/StocktakingWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
+            <BitmapImage x:Key="Delete" UriSource="pack://application:,,,/Resources/Delete.png"/>
+            <BitmapImage x:Key="Eraser" UriSource="pack://application:,,,/Resources/Eraser.png"/>
+            <BitmapImage x:Key="Refresh" UriSource="pack://application:,,,/Resources/Refresh.png"/>
+            <BitmapImage x:Key="Excel" UriSource="pack://application:,,,/Resources/Excel-logo.png"/>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/Styles/Colors.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Styles/Styles.xaml"/>

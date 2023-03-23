@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Configuration;
 using AppDep = System.Deployment.Application.ApplicationDeployment;
+using System.Runtime.CompilerServices;
 
 namespace Stocktaking.ViewModel.Base;
 
@@ -15,8 +16,8 @@ public class BaseVM : IniBase, INotifyPropertyChanged
     public BaseVM(Window window) : base(_iniFilePath)
     {
         _window = window;
-        _LightCheckState = bool.Parse(GetString(_majorKey, _lightMinorKey, "true"));
-        _ShowMode = bool.Parse(GetString(_majorKey, _modeMinorKey, "true"));
+        _LightCheckState = GetData(_majorKey, _lightMinorKey, true);
+        _ShowMode = GetData(_majorKey, _modeMinorKey, true);
     }
 
     #endregion
@@ -44,6 +45,7 @@ public class BaseVM : IniBase, INotifyPropertyChanged
     #region Properties
 
     public string Title => $"Stocktaking v{GetCurrentVersion()}";
+    public string AppName = System.Diagnostics.Process.GetCurrentProcess().ProcessName;
 
     #endregion
 
@@ -57,7 +59,7 @@ public class BaseVM : IniBase, INotifyPropertyChanged
         {
             _LightCheckState = value;
             WriteData(_majorKey, _lightMinorKey, value);
-            OnPropertyChanged(nameof(LightCheckState));
+            OnPropertyChanged();
         }
     }
 
@@ -69,7 +71,7 @@ public class BaseVM : IniBase, INotifyPropertyChanged
         {
             _ShowMode = value;
             WriteData(_majorKey, _modeMinorKey, value);
-            OnPropertyChanged(nameof(ShowMode));
+            OnPropertyChanged();
         }
     }
 
@@ -91,7 +93,7 @@ public class BaseVM : IniBase, INotifyPropertyChanged
     /// Fire the <see cref="PropertyChanged"/> event
     /// </summary>
     /// <param name="name">The property actual name</param>
-    public void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    public void OnPropertyChanged([CallerMemberName] string name = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
     private static string GetCurrentVersion()
         => AppDep.IsNetworkDeployed
